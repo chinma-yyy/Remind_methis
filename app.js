@@ -4,6 +4,10 @@ const request = require('request');
 const mongoose = require('mongoose');
 const app = express();
 
+const appRoutes=require('./routes/appRoutes');
+const userRoutes=require('./routes/userRoutes');
+
+
 var count = 0;
 
 app.use(express.json());
@@ -14,7 +18,7 @@ app.get('/webhook', function (req, res) {
   var crc_token = req.query.crc_token;
   console.log(crc_token);
   if (crc_token) {
-    var hash = crypto.createHmac('sha256', 'CtiBUMSSFOhtqYaVsfusC8uPhjnxqkYsrYKa7eg3pBNDH3UamW').update(crc_token).digest('base64');
+    var hash = crypto.createHmac('sha256', process.env.CONSUMER_SECRET).update(crc_token).digest('base64');
 
     res.status(200);
     var response_token = 'sha256=' + hash;
@@ -45,6 +49,9 @@ app.post('/webhook', (req, res, next) => {
       var num = messageArray[0];
       var time = messageArray[1];
       var link = messageArray[2];
+      res.body.text=message_data;
+      res.body.userId=userId;
+      res.redirect('/app/dm');
     }
     else{
 
@@ -58,10 +65,12 @@ app.post('/webhook', (req, res, next) => {
     console.log("--------");
     console.log(count);
   }
-})
+});
 
-// app.use('/app', appRoutes);
-// app.use('/user', userRoutes);
+
+
+app.use('/app', appRoutes);
+app.use('/user', userRoutes);
 
 app.use('/callbacks/addsub', (req, res, next) => {
   console.log("Call back recieved");
@@ -73,7 +82,7 @@ app.use('/callbacks/removesub', (req, res, next) => {
 
 mongoose
   .connect(
-    'mongodb+srv://cshewale23:Chinmay123@cluster0.yziusso.mongodb.net/app'
+    process.env.MONGODB_URL
   )
   .then(result => {
     app.listen(3000);

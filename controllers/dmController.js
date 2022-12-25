@@ -1,19 +1,40 @@
 var request = require('request');
 
-var options = {
-  'method': 'POST',
-  'url': 'https://api.twitter.com/2/dm_conversations/with/1561081114306813952/messages',
-  'headers': {
-    'Authorization': 'Bearer X0xPQ1Vsc1BFQ1RTUEVMZjE1VC14UHF2bzlXSkN0bWRycC11WFBybzZTSWJrOjE2NzE4MTE2OTE2MzI6MToxOmF0OjE',
-    'Content-Type': 'application/json',
-    'Cookie': 'guest_id=v1%3A167024416675134414; guest_id_ads=v1%3A167024416675134414; guest_id_marketing=v1%3A167024416675134414; personalization_id="v1_OspHE1Mn2J48AHWi3fniWA=="'
-  },
-  body: JSON.stringify({
-    "text": "Testing"
-  })
 
-};
-request(options, function (error, response) {
-  if (error) throw new Error(error);
-  console.log(response.body);
-});
+
+exports.sendMessage = async (req, res,next) => {
+  let recipientID=req.body.userId;
+  let text=req.body.text;
+  // URL Link for twitter endpoint
+  const urlLink = 'https://api.twitter.com/1.1/direct_messages/events/new.json';
+  
+  // Generating timestamp
+  const ts = Math.floor(new Date().getTime() / 1000);
+  const timestamp = ts.toString();
+
+  // Authorization Parameters
+  const params = {
+      "oauth_version"          : "1.0",
+      "oauth_consumer_key"     : process.env.CONSUMER_KEY,
+      "oauth_token"            : process.env.ACCESS_TOKEN,
+      "oauth_timestamp"        :  timestamp,
+      "oauth_nonce"            : "AUTO_GENERATED_NONCE",
+      "oauth_signature_method" : "HMAC-SHA1",
+      "oauth_signature"        : "YOUR_OAUTH_SIGNATURE"
+  };
+
+  const dataString = `{"event": {"type": "message_create", "message_create": {"target": { "recipient_id": "${recipientID}"},"message_data": {"text": "${text}"}}}}`;
+
+  const options = {
+      url: urlLink,
+      headers: {
+       "Authorization": `OAuth oauth_consumer_key="${params.oauth_consumer_key}", oauth_nonce= ${params.oauth_nonce}, oauth_signature= ${params.oauth_signature}, oauth_signature_method="HMAC-SHA1", oauth_timestamp=${params.oauth_timestamp},oauth_token="${params.oauth_token}", oauth_version=${params.oauth_version}`,
+       "Content-type": 'application/json'
+      },
+      body: dataString
+    }
+
+  request.post(options, (error, response, body) =>{
+      console.log(response.statusCode);
+  });
+}
