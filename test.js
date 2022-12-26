@@ -21,13 +21,18 @@
 
 // const newTime=new Date().toLocaleTimeString();
 // console.log(newTime.slice(0,8));
-let text="24  hours  https://www.twitter.com/chinma_yyy";
+// let text="24  hours  https://www.twitter.com/chinma_yyy";
 
-var array=text.split(" ");
-var i=0;
-while(array[i]){
-    console.log(typeof array[i]);
-    console.log(array[i]);
-    i++
-}
+// var array=text.split(" ");
+// var i=0;
+// while(array[i]){
+//     console.log(typeof array[i]);
+//     console.log(array[i]);
+//     i++
+// }
 
+
+let text="Ladies + Gentlemen";
+let coded=encodeURIComponent(text);
+console.log(coded);
+console.log(decodeURIComponent(coded));

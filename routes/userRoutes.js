@@ -1,10 +1,13 @@
-const express=require('express');
-const router = express.router;
+const express = require('express');
+const router = express.Router();
+const { body } = require('express-validator/check');
+const User=require('../models/user');
+const userController = require('../controllers/userController');
+const middleware=require('../middlewares/user')
 
-const userController=require('../controllers/userController');
 
 router.post('/login',userController.login);
 
-router.post('/signup',userController.signup);
+router.put('/signup', userController.signup);//Add middleware to validate all input
 
 module.exports = router;

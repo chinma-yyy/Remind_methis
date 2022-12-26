@@ -80,6 +80,14 @@ app.use('/callbacks/removesub', (req, res, next) => {
   console.log("Call back recieved");
 })
 
+app.use((error, req, res, next) => {
+  console.log(error);
+  const status = error.statusCode || 500;
+  const message = error.message;
+  const data = error.data;
+  res.status(status).json({ message: message, data: data });
+});
+
 mongoose
   .connect(
     process.env.MONGODB_URL

@@ -7,6 +7,10 @@ const userSchema=new Schema({
         type:String,
         required:true
     },
+    name:{
+        type:String,
+        required:true
+    },
     password:{
         type:String,
         required:true
@@ -17,7 +21,7 @@ const userSchema=new Schema({
     },
     twitterUserid:{
         type:String,
-        required:true
+        // required:true
     },
     tweets:[
         {
