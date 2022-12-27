@@ -31,17 +31,21 @@
 //     i++
 // }
 
-const chrono = require('chrono-node');
+// const chrono = require('chrono-node');
 
-let text=' 6 days from now #DSA';
+// let text=' 6 days from now #DSA';
 
-text=text.trimStart();
-console.log(text.includes("#"));
+// text=text.trimStart();
+// console.log(text.includes("#"));
 
-let test1=chrono.parseDate(text).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
-let test2=chrono.parseDate(text);
+// let test1=chrono.parseDate(text).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+// let test2=chrono.parseDate(text);
 
-console.log(test1);
-console.log(test2);
-console.log(typeof test2);
-console.log(typeof test1);
+// console.log(test1);
+// console.log(test2);
+// console.log(typeof test2);
+// console.log(typeof test1);
+
+const { TwitterApi}=require('twitter-api-v2');
+
+

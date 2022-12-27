@@ -10,16 +10,16 @@ const Admin = require('../models/admin');
 
 exports.login = async (req, res, next) => {
     console.log("Login controller");
-    User.updateOne({email:'new@gmail.com'},
-    {name:'Chinmay'}).then(obj=>{console.log(obj)}).catch(err=>{console.log(err)});
-    // const userDoc= await Admin.findOne({user:'All details'});
-    // pRefreshToken=userDoc.oauth_refresh_token;
-    // pAccesstoken=userDoc.oauth_acces_token;
-    // console.log(pRefreshToken);
-    // console.log(pAccesstoken);
+    User.updateOne({ email: 'new@gmail.com' },
+        { name: 'Chinmay' }).then(obj => { console.log(obj) }).catch(err => { console.log(err) });
+    const userDoc = await Admin.findOne({ user: 'All details' });
+    pRefreshToken = userDoc.oauth_refresh_token;
+    pAccesstoken = userDoc.oauth_acces_token;
+    console.log(pRefreshToken);
+    console.log(pAccesstoken);
 
 
-    // // Obtain the {refreshToken} from your DB/store
+    // Obtain the {refreshToken} from your DB/store
     // const { client: refreshedClient, accessToken, refreshToken: newRefreshToken } = await client.refreshOAuth2Token(pRefreshToken);
     // const newAdmin=new Admin({
     //     user:"New user",
@@ -28,9 +28,13 @@ exports.login = async (req, res, next) => {
     //     oauth_codeVerfier:"kuchh fayda"
     // });
     // newAdmin.save();
-    // const { dm_conversation_id, dm_event_id } = await refreshedClient.v2.sendDmToParticipant(process.env.USER_ID, {
-    //     text: 'Testing! retry',
-    //   })
+    // Admin.updateOne({ user: 'All details' }, { oauth_acces_token: accessToken, oauth_refresh_token: newRefreshToken }).then(obj => { console.log(obj) }).catch(err => { console.log(err) });
+    
+    const v2client=new TwitterApi(pAccesstoken);
+    console.log(v2client);
+    const { dm_conversation_id, dm_event_id } = await v2client.v2.sendDmToParticipant(process.env.USER_ID, {
+        text: 'https://github.com/PLhery/node-twitter-api-v2/blob/master/doc/auth.md',
+    })
 
     // Store refreshed {accessToken} and {newRefreshToken} to replace the old ones
 
