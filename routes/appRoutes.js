@@ -2,7 +2,7 @@ const express=require('express');
 const router = express.Router();
 
 const appController=require('../controllers/appController');
-const dmController=require('../controllers/dmController');
+// const dmController=require('../controllers/dmController');
 
 // router.post('/dm',dmController);
 

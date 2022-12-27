@@ -9,7 +9,7 @@ const Admin=require('./models/admin');
 
 const appRoutes = require('./routes/appRoutes');
 const userRoutes = require('./routes/userRoutes');
-const webhookRoutes=require('')
+const webhookRoutes=require('./routes/webhookRoutes');
 
 
 var count = 0;
@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 //Handle CRC request response from twitter
-app.use('/webhook',webhookRoutes)
+// app.use('/webhook',webhookRoutes)
 
 
 

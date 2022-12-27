@@ -6,12 +6,36 @@ const { TwitterApi } = require('twitter-api-v2');
 const client = new TwitterApi({ clientId: process.env.CLIENT_ID, clientSecret: process.env.CLIENT_SECRET });
 
 const User = require('../models/user');
-const Admin=require('../models/admin');
+const Admin = require('../models/admin');
 
-exports.login = (req, res, next) => {
+exports.login = async (req, res, next) => {
     console.log("Login controller");
-    console.log(client);
-    
+    const userDoc= await Admin.findOne({user:'All details'});
+    pRefreshToken=userDoc.oauth_refresh_token;
+    pAccesstoken=userDoc.oauth_acces_token;
+    console.log(pRefreshToken);
+    console.log(pAccesstoken);
+
+
+    // Obtain the {refreshToken} from your DB/store
+    const { client: refreshedClient, accessToken, refreshToken: newRefreshToken } = await client.refreshOAuth2Token(pRefreshToken);
+    const newAdmin=new Admin({
+        user:"New user",
+        oauth_acces_token:accessToken,
+        oauth_refresh_token:newRefreshToken,
+        oauth_codeVerfier:"kuchh fayda"
+    });
+    newAdmin.save();
+    const { dm_conversation_id, dm_event_id } = await refreshedClient.v2.sendDmToParticipant(process.env.USER_ID, {
+        text: 'Testing! retry',
+      })
+
+    // Store refreshed {accessToken} and {newRefreshToken} to replace the old ones
+
+    // Example request
+    // await refreshedClient.v2.me();
+    // console.log(client);
+
     const email = req.body.email;
     const password = req.body.password;
     User.findOne({ email: email }).then(user => {
@@ -42,7 +66,7 @@ exports.login = (req, res, next) => {
         next(err);
     })
 }
-exports.signup =async (req, res, next) => {
+exports.signup = async (req, res, next) => {
     console.log("Signup Controlller");
     const email = req.body.email;
     const name = req.body.name;
@@ -51,15 +75,15 @@ exports.signup =async (req, res, next) => {
     //Add twitter user authentication and retrieve userId to store in db
     const twitterId = 17645345;
     console.log("Authlink");
-    const { url, codeVerifier, state } = await client.generateOAuth2AuthLink(process.env.CALLBACK_URL, { scope: ['tweet.read', 'users.read', 'offline.access', 'dm.read','dm.write'] });
+    const { url, codeVerifier, state } = await client.generateOAuth2AuthLink(process.env.CALLBACK_URL, { scope: ['tweet.read', 'users.read', 'offline.access', 'dm.read', 'dm.write'] });
     console.log(url);
     console.log("---")
     console.log(codeVerifier);
     // console.log(state);
-    const admin=new Admin({
-        user:'Admin',
-        oauth_state:state,
-        oauth_codeVerifier:codeVerifier
+    const admin = new Admin({
+        user: 'Admin',
+        oauth_state: state,
+        oauth_codeVerifier: codeVerifier
     });
     console.log(admin);
     admin.save();
