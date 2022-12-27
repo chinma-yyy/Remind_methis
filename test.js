@@ -31,12 +31,17 @@
 //     i++
 // }
 
+const chrono = require('chrono-node');
 
-let text="Ladies + Gentlemen";
-let coded=encodeURIComponent(text);
-console.log(coded);
-console.log(decodeURIComponent(coded));
+let text=' 6 days from now #DSA';
 
-const consumerClient = new TwitterApi({ appKey: CONSUMER_KEY, appSecret: CONSUMER_SECRET });
-// Obtain app-only client
-const client = await consumerClient.appLogin();
+text=text.trimStart();
+console.log(text.includes("#"));
+
+let test1=chrono.parseDate(text).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+let test2=chrono.parseDate(text);
+
+console.log(test1);
+console.log(test2);
+console.log(typeof test2);
+console.log(typeof test1);

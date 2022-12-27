@@ -1,6 +1,12 @@
 const { TwitterApi } = require('twitter-api-v2');
+const chrono=require('chrono-node');
+const crypto=require('crypto');
 
 const client = new TwitterApi({ clientId: process.env.CLIENT_ID, clientSecret: process.env.CLIENT_SECRET });
+
+function containsLink(text){
+
+}
 
 exports.get = (req, res, next) => {
 
@@ -28,32 +34,26 @@ exports.get = (req, res, next) => {
 }
 
 exports.post = (req, res, next) => {
-
-    count = count + 1;
     var body = req.body; //store the body
     if (body.direct_message_events) {
         let message_data = body.direct_message_events[0].message_create.message_data.text;//storing the message text using json sent by twitter
+        message_data=message_data.trimStart();
         let userId = body.direct_message_events[0].message_create.sender_id;;//Storing the userId of the user doing the event
-        const messageArray = message_data.split(" ");//splitting the dm to understand the time format
-        if (messageArray.length > 1) {
-            var num = messageArray[0];
-            var time = messageArray[1];
-            var link = messageArray[2];
-            res.body.text = message_data;
-            res.body.userId = userId;
-            res.redirect('/app/dm');
-        }
-        else {
-
-        }
-
         console.log("Start");
-        // console.log(body);
-        // console.log(event);
-        // console.log(eventType);
         console.log(message_data);
-        console.log("--------");
-        console.log(count);
+        if(message_data=='archive'){
+            //send recent 5 tweets from db
+        }
+        else if(message_data=='reminders'){
+            //send recent 5 tweets with reminder flag on
+        }
+        else if(containsLink(message_data)){
+            //only store in db
+        }
+        else{
+            const dateTime=chrono.parseDate(message_data).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+
+        }
     }
 
 }

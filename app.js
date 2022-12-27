@@ -36,7 +36,7 @@ app.get('/callback', async (req, res) => {
   console.log("code-"+code);
   // Get the saved codeVerifier from session
   // const { codeVerifier, state: sessionState } = req.session;
-  let codeVerifier='9x6UHj1Aj03vfB4mBoPMaA-qlvftiJsM.hxoliy3FsvCqv6o.SvIHIuQy2-tNuK289gm8Iq5-77TA_A4h7Vw7D3w1aYoMkHLITFy7Ovlrn-b4_26FoSHqlYdz6AcahkK';
+  let codeVerifier='NzMehgwG6w8tBxj5nQDQ6WrDBWtfQBZ_aB~8hEf96fe~3Qz.Qqdb2EihEw6.YhZw5o76VSZz0iNQnJUdO45O~Pj95_VBk_-zvz8jVI-eHk4NLMD4tRGED..WT5P_3ts7';
   
   
   console.log("verifier-"+codeVerifier);
@@ -55,16 +55,18 @@ app.get('/callback', async (req, res) => {
       const { dm_conversation_id, dm_event_id } = await loggedClient.v2.sendDmToParticipant(process.env.USER_ID, {
         text: 'Testing!',
       })
-      const freshToken=refreshToken;
-      const adminUser=new Admin({
+      const newRefreshToken=refreshToken;
+      const newAccessToken=accessToken;
+      const newAdmin = new Admin({
         user:'All details',
-        oauth_state:state,
-        oauth_codeVerifier:codeVerifier,
-        oauth_refresh_token:freshToken,
-        oauth_access_token:accessToken,
-        expiresIn:expiresIn
+        oauth_acces_token: newAccessToken,
+        oauth_refresh_token: newRefreshToken,
+        oauth_codeVerfier: codeVerifier,
+        oauth_state: state,
+        oauth_code: code,
+        expiresIn: expiresIn
       })
-      adminUser.save();
+      newAdmin.save();
       
       // {loggedClient} is an authenticated client in behalf of some user
       // Store {accessToken} somewhere, it will be valid until {expiresIn} is hit.

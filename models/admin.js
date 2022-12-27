@@ -20,6 +20,9 @@ const adminSchema = new Schema({
     },
     expiresIn:{
         type:String,
+    },
+    oauth_code:{
+        type:String,
     }
 })
 module.exports=mongoose.model('Admin',adminSchema);

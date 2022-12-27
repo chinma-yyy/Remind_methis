@@ -10,25 +10,27 @@ const Admin = require('../models/admin');
 
 exports.login = async (req, res, next) => {
     console.log("Login controller");
-    const userDoc= await Admin.findOne({user:'All details'});
-    pRefreshToken=userDoc.oauth_refresh_token;
-    pAccesstoken=userDoc.oauth_acces_token;
-    console.log(pRefreshToken);
-    console.log(pAccesstoken);
+    User.updateOne({email:'new@gmail.com'},
+    {name:'Chinmay'}).then(obj=>{console.log(obj)}).catch(err=>{console.log(err)});
+    // const userDoc= await Admin.findOne({user:'All details'});
+    // pRefreshToken=userDoc.oauth_refresh_token;
+    // pAccesstoken=userDoc.oauth_acces_token;
+    // console.log(pRefreshToken);
+    // console.log(pAccesstoken);
 
 
-    // Obtain the {refreshToken} from your DB/store
-    const { client: refreshedClient, accessToken, refreshToken: newRefreshToken } = await client.refreshOAuth2Token(pRefreshToken);
-    const newAdmin=new Admin({
-        user:"New user",
-        oauth_acces_token:accessToken,
-        oauth_refresh_token:newRefreshToken,
-        oauth_codeVerfier:"kuchh fayda"
-    });
-    newAdmin.save();
-    const { dm_conversation_id, dm_event_id } = await refreshedClient.v2.sendDmToParticipant(process.env.USER_ID, {
-        text: 'Testing! retry',
-      })
+    // // Obtain the {refreshToken} from your DB/store
+    // const { client: refreshedClient, accessToken, refreshToken: newRefreshToken } = await client.refreshOAuth2Token(pRefreshToken);
+    // const newAdmin=new Admin({
+    //     user:"New user",
+    //     oauth_acces_token:accessToken,
+    //     oauth_refresh_token:newRefreshToken,
+    //     oauth_codeVerfier:"kuchh fayda"
+    // });
+    // newAdmin.save();
+    // const { dm_conversation_id, dm_event_id } = await refreshedClient.v2.sendDmToParticipant(process.env.USER_ID, {
+    //     text: 'Testing! retry',
+    //   })
 
     // Store refreshed {accessToken} and {newRefreshToken} to replace the old ones
 
@@ -79,9 +81,10 @@ exports.signup = async (req, res, next) => {
     console.log(url);
     console.log("---")
     console.log(codeVerifier);
-    // console.log(state);
+    console.log("----");
+    console.log(state);
     const admin = new Admin({
-        user: 'Admin',
+        user: 'new Details',
         oauth_state: state,
         oauth_codeVerifier: codeVerifier
     });
