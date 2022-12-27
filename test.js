@@ -36,3 +36,7 @@ let text="Ladies + Gentlemen";
 let coded=encodeURIComponent(text);
 console.log(coded);
 console.log(decodeURIComponent(coded));
+
+const consumerClient = new TwitterApi({ appKey: CONSUMER_KEY, appSecret: CONSUMER_SECRET });
+// Obtain app-only client
+const client = await consumerClient.appLogin();

@@ -3,9 +3,12 @@ const crypto = require('crypto');
 const request = require('request');
 const mongoose = require('mongoose');
 const app = express();
+const { TwitterApi } = require('twitter-api-v2');
+const User = require('./models/user');
+const Admin=require('./models/admin');
 
-const appRoutes=require('./routes/appRoutes');
-const userRoutes=require('./routes/userRoutes');
+const appRoutes = require('./routes/appRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 
 var count = 0;
@@ -43,17 +46,17 @@ app.post('/webhook', (req, res, next) => {
   var body = req.body; //store the body
   if (body.direct_message_events) {
     let message_data = body.direct_message_events[0].message_create.message_data.text;//storing the message text using json sent by twitter
-    let userId=body.direct_message_events[0].message_create.sender_id;;//Storing the userId of the user doing the event
+    let userId = body.direct_message_events[0].message_create.sender_id;;//Storing the userId of the user doing the event
     const messageArray = message_data.split(" ");//splitting the dm to understand the time format
     if (messageArray.length > 1) {
       var num = messageArray[0];
       var time = messageArray[1];
       var link = messageArray[2];
-      res.body.text=message_data;
-      res.body.userId=userId;
+      res.body.text = message_data;
+      res.body.userId = userId;
       res.redirect('/app/dm');
     }
-    else{
+    else {
 
     }
 
@@ -71,6 +74,54 @@ app.post('/webhook', (req, res, next) => {
 
 app.use('/app', appRoutes);
 app.use('/user', userRoutes);
+
+app.get('/callback', async (req, res) => {
+  // Extract state and code from query string
+  const state = req.query.state;
+  const code = req.query.code;
+  console.log("state-"+state);
+  console.log("code-"+code);
+  // Get the saved codeVerifier from session
+  // const { codeVerifier, state: sessionState } = req.session;
+  let codeVerifier='9x6UHj1Aj03vfB4mBoPMaA-qlvftiJsM.hxoliy3FsvCqv6o.SvIHIuQy2-tNuK289gm8Iq5-77TA_A4h7Vw7D3w1aYoMkHLITFy7Ovlrn-b4_26FoSHqlYdz6AcahkK';
+  
+  
+  console.log("verifier-"+codeVerifier);
+  if (!codeVerifier || !state ||  !code) {
+    return res.status(400).send('You denied the app or your session expired!');
+  }
+  // if (state !== sessionState) {
+  //   return res.status(400).send('Stored tokens didnt match!');
+  // }
+
+  // Obtain access token
+  const client = new TwitterApi({ clientId: process.env.CLIENT_ID, clientSecret: process.env.CLIENT_SECRET });
+
+  client.loginWithOAuth2({ code, codeVerifier, redirectUri: process.env.CALLBACK_URL })
+    .then(async ({ client: loggedClient, accessToken, refreshToken, expiresIn }) => {
+      const { dm_conversation_id, dm_event_id } = await loggedClient.v2.sendDmToParticipant(process.env.USER_ID, {
+        text: 'Testing!',
+      })
+      const freshToken=refreshToken;
+      const adminUser=new Admin({
+        user:'All details',
+        oauth_state:state,
+        oauth_codeVerifier:codeVerifier,
+        oauth_refresh_token:freshToken,
+        oauth_access_token:accessToken,
+        expiresIn:expiresIn
+      })
+      adminUser.save();
+      
+      // {loggedClient} is an authenticated client in behalf of some user
+      // Store {accessToken} somewhere, it will be valid until {expiresIn} is hit.
+      // If you want to refresh your token later, store {refreshToken} (it is present if 'offline.access' has been given as scope)
+
+      // Example request
+      // const { data: userObject } = await loggedClient.v2.me();
+    })
+    .catch(() => res.status(403).send('Invalid verifier or access tokens!'));
+});
 
 app.use('/callbacks/addsub', (req, res, next) => {
   console.log("Call back recieved");
