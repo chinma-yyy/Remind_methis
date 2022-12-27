@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 //Handle CRC request response from twitter
-// app.use('/webhook',webhookRoutes)
+app.use('/webhook',webhookRoutes)
 
 
 
