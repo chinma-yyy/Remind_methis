@@ -49,11 +49,19 @@
 // const { TwitterApi}=require('twitter-api-v2');
 
 
-let number=25;
-if(number%2==0){
-    console.log("Even");
-}
-else{
-    console.log("Odd");
-}
+// let number=25;
+// if(number%2==0){
+//     console.log("Even");
+// }
+// else{
+//     console.log("Odd");
+// }
+const link= fetch('https://t.co/KCsiFNFR2Y', { method: 'POST', redirect: 'follow'})
+    .then(response => {
+        // HTTP 301 response
+        console.log(body);
+    })
+    .catch(function(err) {
+        console.info(err + " url: " );
+    });
 

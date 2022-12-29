@@ -36,7 +36,7 @@ app.get('/callback', async (req, res) => {
   console.log("code-"+code);
   // Get the saved codeVerifier from session
   // const { codeVerifier, state: sessionState } = req.session;
-  let codeVerifier='NzMehgwG6w8tBxj5nQDQ6WrDBWtfQBZ_aB~8hEf96fe~3Qz.Qqdb2EihEw6.YhZw5o76VSZz0iNQnJUdO45O~Pj95_VBk_-zvz8jVI-eHk4NLMD4tRGED..WT5P_3ts7';
+  let codeVerifier='FwqkhmNZGfnIWbcgIZTsa1rKxQN4GzTyKoF7yXKsjm-uTJ4tZaC6Q1dBQT7qrR3u_dCZdKXniCfiIkqHsTxfuBRjwPob9IRiXvhxMfbVYqbpQ6rYq.2iyTdqDv8ra9N8';
   
   
   console.log("verifier-"+codeVerifier);

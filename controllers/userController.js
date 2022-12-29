@@ -20,15 +20,15 @@ exports.login = async (req, res, next) => {
 
 
     // Obtain the {refreshToken} from your DB/store
-    // const { client: refreshedClient, accessToken, refreshToken: newRefreshToken } = await client.refreshOAuth2Token(pRefreshToken);
-    // const newAdmin=new Admin({
-    //     user:"New user",
-    //     oauth_acces_token:accessToken,
-    //     oauth_refresh_token:newRefreshToken,
-    //     oauth_codeVerfier:"kuchh fayda"
-    // });
-    // newAdmin.save();
-    // Admin.updateOne({ user: 'All details' }, { oauth_acces_token: accessToken, oauth_refresh_token: newRefreshToken }).then(obj => { console.log(obj) }).catch(err => { console.log(err) });
+    const { client: refreshedClient, accessToken, refreshToken: newRefreshToken } = await client.refreshOAuth2Token(pRefreshToken);
+    const newAdmin=new Admin({
+        user:"New user",
+        oauth_acces_token:accessToken,
+        oauth_refresh_token:newRefreshToken,
+        oauth_codeVerfier:"kuchh fayda"
+    });
+    newAdmin.save();
+    Admin.updateOne({ user: 'All details' }, { oauth_acces_token: accessToken, oauth_refresh_token: newRefreshToken }).then(obj => { console.log(obj) }).catch(err => { console.log(err) });
     
     const v2client=new TwitterApi(pAccesstoken);
     console.log(v2client);
@@ -83,7 +83,11 @@ exports.signup = async (req, res, next) => {
     console.log("Authlink");
     const { url, codeVerifier, state } = await client.generateOAuth2AuthLink(process.env.CALLBACK_URL, { scope: ['tweet.read', 'users.read', 'offline.access', 'dm.read', 'dm.write'] });
     console.log(url);
-    console.log("---")
+    console.log("---");
+    console.log(codeVerifier);
+    console.log("---");
+    console.log(state);
+    console.log("---");
     
     bcrypt.hash(password, 12).then(hashedPw => {
         const user = new User({
