@@ -33,7 +33,7 @@ exports.login = async (req, res, next) => {
     const v2client=new TwitterApi(pAccesstoken);
     console.log(v2client);
     const { dm_conversation_id, dm_event_id } = await v2client.v2.sendDmToParticipant(process.env.USER_ID, {
-        text: 'https://github.com/PLhery/node-twitter-api-v2/blob/master/doc/auth.md',
+        text: '1. https://github.com/PLhery/node-twitter-api-v2/blob/master/doc/auth.md  \n2. https://www.twitter.com/chinma_yyy',
     })
 
     // Store refreshed {accessToken} and {newRefreshToken} to replace the old ones
@@ -84,19 +84,7 @@ exports.signup = async (req, res, next) => {
     const { url, codeVerifier, state } = await client.generateOAuth2AuthLink(process.env.CALLBACK_URL, { scope: ['tweet.read', 'users.read', 'offline.access', 'dm.read', 'dm.write'] });
     console.log(url);
     console.log("---")
-    console.log(codeVerifier);
-    console.log("----");
-    console.log(state);
-    const admin = new Admin({
-        user: 'new Details',
-        oauth_state: state,
-        oauth_codeVerifier: codeVerifier
-    });
-    console.log(admin);
-    admin.save();
-    // const authLink =  await client.generateAuthLink(process.env.CALLBACK_URL);
-    // console.log(authLink);
-    console.log("control");
+    
     bcrypt.hash(password, 12).then(hashedPw => {
         const user = new User({
             email: email,

@@ -46,6 +46,14 @@
 // console.log(typeof test2);
 // console.log(typeof test1);
 
-const { TwitterApi}=require('twitter-api-v2');
+// const { TwitterApi}=require('twitter-api-v2');
 
+
+let number=25;
+if(number%2==0){
+    console.log("Even");
+}
+else{
+    console.log("Odd");
+}
 
