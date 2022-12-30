@@ -11,43 +11,24 @@ const appRoutes = require('./routes/appRoutes');
 const userRoutes = require('./routes/userRoutes');
 const webhookRoutes=require('./routes/webhookRoutes');
 
-
-var count = 0;
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 //Handle CRC request response from twitter
 app.use('/webhook',webhookRoutes)
-
-
-
-
-
-
 app.use('/app', appRoutes);
 app.use('/user', userRoutes);
 
+//Handle OAuth2 callback
 app.get('/callback', async (req, res) => {
   // Extract state and code from query string
   const state = req.query.state;
   const code = req.query.code;
   console.log("state-"+state);
   console.log("code-"+code);
-  // Get the saved codeVerifier from session
-  // const { codeVerifier, state: sessionState } = req.session;
   let codeVerifier='kugxQKWvJyc16_X7tkSt5u3OeuHhMDj~DnVJnvYkU5VQ433u3zo9QQqJlEX1mp~qHhZRmaG6tC67bf7.8vWqaX--srNdDD28K7xII29UmLPNEfuNP7zK2WyU2OaU~W2X';
-  
-  
   console.log("verifier-"+codeVerifier);
-  if (!codeVerifier || !state ||  !code) {
-    return res.status(400).send('You denied the app or your session expired!');
-  }
-  // if (state !== sessionState) {
-  //   return res.status(400).send('Stored tokens didnt match!');
-  // }
-
-  // Obtain access token
+  
   const client = new TwitterApi({ clientId: process.env.CLIENT_ID, clientSecret: process.env.CLIENT_SECRET });
 
   client.loginWithOAuth2({ code, codeVerifier, redirectUri: process.env.CALLBACK_URL })
@@ -70,23 +51,10 @@ app.get('/callback', async (req, res) => {
       console.log(newRefreshToken);
       console.log(newAccessToken);
       
-      // {loggedClient} is an authenticated client in behalf of some user
-      // Store {accessToken} somewhere, it will be valid until {expiresIn} is hit.
-      // If you want to refresh your token later, store {refreshToken} (it is present if 'offline.access' has been given as scope)
-
-      // Example request
-      // const { data: userObject } = await loggedClient.v2.me();
     })
     .catch(() => res.status(403).send('Invalid verifier or access tokens!'));
 });
 
-app.use('/callbacks/addsub', (req, res, next) => {
-  console.log("Call back recieved");
-})
-
-app.use('/callbacks/removesub', (req, res, next) => {
-  console.log("Call back recieved");
-})
 
 app.use((error, req, res, next) => {
   console.log(error);
