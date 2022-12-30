@@ -22,13 +22,7 @@ const userSchema=new Schema({
     twitterUserid:{
         type:String,
         // required:true
-    },
-    tweets:[
-        {
-            type:Schema.Types.ObjectId,
-            ref:'Tweet'
-        }
-    ]
+    }
 });
 
 module.exports=mongoose.model('User',userSchema);

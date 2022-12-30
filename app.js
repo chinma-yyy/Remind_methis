@@ -36,7 +36,7 @@ app.get('/callback', async (req, res) => {
   console.log("code-"+code);
   // Get the saved codeVerifier from session
   // const { codeVerifier, state: sessionState } = req.session;
-  let codeVerifier='FwqkhmNZGfnIWbcgIZTsa1rKxQN4GzTyKoF7yXKsjm-uTJ4tZaC6Q1dBQT7qrR3u_dCZdKXniCfiIkqHsTxfuBRjwPob9IRiXvhxMfbVYqbpQ6rYq.2iyTdqDv8ra9N8';
+  let codeVerifier='kugxQKWvJyc16_X7tkSt5u3OeuHhMDj~DnVJnvYkU5VQ433u3zo9QQqJlEX1mp~qHhZRmaG6tC67bf7.8vWqaX--srNdDD28K7xII29UmLPNEfuNP7zK2WyU2OaU~W2X';
   
   
   console.log("verifier-"+codeVerifier);
@@ -67,6 +67,8 @@ app.get('/callback', async (req, res) => {
         expiresIn: expiresIn
       })
       newAdmin.save();
+      console.log(newRefreshToken);
+      console.log(newAccessToken);
       
       // {loggedClient} is an authenticated client in behalf of some user
       // Store {accessToken} somewhere, it will be valid until {expiresIn} is hit.
