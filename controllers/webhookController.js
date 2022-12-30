@@ -15,14 +15,14 @@ async function sendDM(message) {
     const pAccesstoken = userDoc.oauth_acces_token;
     console.log(pRefreshToken);
     console.log(pAccesstoken);
-    
+
     try {
         const v2client = new TwitterApi(pAccesstoken);
         console.log("User created");
         // console.log(v2client);
-        const { dm_conversation_id, dm_event_id } = await v2client.v2.sendDmToParticipant(process.env.USER_ID, {
+        const { dm_conversation_id, dm_event_id } = await v2client.v2.sendDmToParticipant("1561081114306813952", {
             text: message,
-        })
+        }).then(obj => { console.log("Mesage sent") }).catch(err => { console.log(err) });
     }
     catch (err) {
         console.log(err);
@@ -31,7 +31,12 @@ async function sendDM(message) {
         // const client = new TwitterApi(pAccesstoken);
         console.log("user created");
         console.log(pRefreshToken);
-        const { client: refreshedClient, accessToken, pRefreshToken: newRefreshToken } = await client.refreshOAuth2Token(pRefreshToken);
+        const { client: refreshedClient, accessToken, pRefreshToken: newRefreshToken } = await client.refreshOAuth2Token(pRefreshToken).then(obj => {
+            console.log("No refresh error")
+        }).catch(err => {
+            console.log("refresh error");
+            console.log(err);
+        });
         const { dm_conversation_id, dm_event_id } = await refreshedClient.v2.sendDmToParticipant(process.env.USER_ID, {
             text: message,
         });
@@ -77,18 +82,17 @@ exports.post = (req, res, next) => {
     let recipientId = body.direct_message_events[0].message_create.target.recipient_id;
     if (body.direct_message_events) {
         console.log("Self created");
-        if (senderId!="1606266324094955521") {
+        if (senderId != "1606266324094955521") {
             console.log("Not self created");
-            count = count + 1;
-            console.log(count);
             let message_data = body.direct_message_events[0].message_create.message_data.text;//storing the message text using json sent by twitter
             let urls = body.direct_message_events[0].message_create.message_data.entities.urls;
             let hashtags = body.direct_message_events[0].message_create.message_data.entities.hashtags;
-            console.log(hashtags);
+            // console.log(hashtags);
             console.log("----");
-            console.log(urls);
-            console.log(body.direct_message_events[0].message_create);
+            // console.log(urls);
             message_data = message_data.trimStart();
+            message_data = message_data.toLowerCase();
+            message_data = message_data.trimEnd();
             let userId = body.direct_message_events[0].message_create.sender_id;;//Storing the userId of the user doing the event
             console.log("Start");
             console.log(message_data);
@@ -103,10 +107,14 @@ exports.post = (req, res, next) => {
             else if (containsLink(message_data)) {
                 //only store in db
             }
-            else if(chrono.parseDate(message_data)){
-                const dateTime=chrono.parseDate(message_data).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
-                sendDM("I have received your message. I will remind you at the specified time."+dateTime);
+            else if (chrono.parseDate(message_data)) {
+                console.log("Date found");
+                const dateTime = chrono.parseDate(message_data).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+                sendDM("I have received your message. I will remind you at the specified time." + dateTime);
 
+            }
+            else {
+                sendDM("I have received your message. ");
             }
         }
     }
