@@ -26,7 +26,7 @@ app.get('/callback', async (req, res) => {
   const code = req.query.code;
   console.log("state-"+state);
   console.log("code-"+code);
-  let codeVerifier='kugxQKWvJyc16_X7tkSt5u3OeuHhMDj~DnVJnvYkU5VQ433u3zo9QQqJlEX1mp~qHhZRmaG6tC67bf7.8vWqaX--srNdDD28K7xII29UmLPNEfuNP7zK2WyU2OaU~W2X';
+  let codeVerifier='0hpIUYpJnOCmNJIm.WAXnPYa__oX296CCPBLRwP.FQZKTibRLkAbsOC_CzgkNEm4kJxoPPtyQonDL0umbXgy_X1pOjfh.xcXrCcYyKCZCfNpv873N.4L5BPnApLHBdgx';
   console.log("verifier-"+codeVerifier);
   
   const client = new TwitterApi({ clientId: process.env.CLIENT_ID, clientSecret: process.env.CLIENT_SECRET });

@@ -30,21 +30,27 @@ async function sendDM(message, userId) {
         // const client = new TwitterApi(pAccesstoken);
         console.log("user created");
         console.log(pRefreshToken);
-        const { client: refreshedClient, accessToken, pRefreshToken: newRefreshToken } = client.refreshOAuth2Token(pRefreshToken).then(obj => {
-            const { dm_conversation_id, dm_event_id } = refreshedClient.v2.sendDmToParticipant(process.env.USER_ID, {
-                text: message,
-            });
-            console.log("No refresh error");
-        }).then(result => {
-            const userDoc = Admin.updateOne({ user: 'All details' }, { oauth_acces_token: accessToken, oauth_refresh_token: newRefreshToken })
-                .then(obj => { console.log(obj) })
-                .catch(err => { console.log(err) });
-            console.log("error finished");
-        })
-            .catch(err => {
-                console.log("refresh error");
-                console.log(err);
-            });
+        try {
+            const { client: refreshedClient, accessToken, pRefreshToken: newRefreshToken } = client.refreshOAuth2Token(pRefreshToken).then(obj => {
+                const { dm_conversation_id, dm_event_id } = refreshedClient.v2.sendDmToParticipant(process.env.USER_ID, {
+                    text: message,
+                });
+                console.log("No refresh error");
+            }).then(result => {
+                const userDoc = Admin.updateOne({ user: 'All details' }, { oauth_acces_token: accessToken, oauth_refresh_token: newRefreshToken })
+                    .then(obj => { console.log(obj) })
+                    .catch(err => { console.log(err) });
+                console.log("error finished");
+            })
+                .catch(err => {
+                    console.log("refresh error");
+                    console.log(err);
+                });
+        }
+        catch (err) {
+            console.log("Main client error");
+            console.log(err);
+        }
     }
 
 }
@@ -76,12 +82,12 @@ exports.get = (req, res, next) => {
 
 exports.post = (req, res, next) => {
     var body = req.body; //store the body of the request
-    // console.log(body);
-    let senderId = body.direct_message_events[0].message_create.sender_id;
-    console.log("Sender Id: " + senderId);
-    console.log(process.env.USER_ID);
-    let recipientId = body.direct_message_events[0].message_create.target.recipient_id;
+    console.log(body);
+    // console.log(process.env.USER_ID);
     if (body.direct_message_events) {
+        let recipientId = body.direct_message_events[0].message_create.target.recipient_id;
+        let senderId = body.direct_message_events[0].message_create.sender_id;
+        console.log("Sender Id: " + senderId);
         console.log("Self created");
         if (senderId != "1606266324094955521") {
             console.log("Not self created");
