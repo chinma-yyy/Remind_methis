@@ -5,7 +5,7 @@ const Admin = require('../models/admin');
 const Tweet = require('../models/tweet');
 const User = require('../models/user');
 
-async function sendDM(message,userId) {
+async function sendDM(message, userId) {
     const userDoc = await Admin.findOne({ user: 'All details' });
     const pRefreshToken = userDoc.oauth_refresh_token;
     const pAccesstoken = userDoc.oauth_acces_token;
@@ -13,34 +13,38 @@ async function sendDM(message,userId) {
     console.log(pAccesstoken);
 
     try {
-        const v2client = new TwitterApi(pAccesstoken);
-        console.log("User created");
-        // console.log(v2client);
-        const { dm_conversation_id, dm_event_id } = await v2client.v2.sendDmToParticipant(userId, {
-            text: message,
-        }).then(obj => { console.log("Mesage sent") }).catch(err => { console.log(err) });
+        const v2client = new TwitterApi(pAccesstoken).then(obj => {
+            console.log("User created");
+            console.log(v2client);
+            const { dm_conversation_id, dm_event_id } = v2client.v2.sendDmToParticipant(userId, {
+                text: message,
+            }).then(obj => { console.log("Mesage sent") })
+        }).catch(err => { console.log(err) });
+
     }
     catch (err) {
-        console.log(err);
         console.log("error");
+        console.log(err);
         const client = new TwitterApi({ clientId: process.env.CLIENT_ID, clientSecret: process.env.CLIENT_SECRET });
+        console.log(client);
         // const client = new TwitterApi(pAccesstoken);
         console.log("user created");
         console.log(pRefreshToken);
-        const { client: refreshedClient, accessToken, pRefreshToken: newRefreshToken } = await client.refreshOAuth2Token(pRefreshToken).then(obj => {
-            console.log("No refresh error")
-        }).catch(err => {
-            console.log("refresh error");
-            console.log(err);
-        });
-        const { dm_conversation_id, dm_event_id } = await refreshedClient.v2.sendDmToParticipant(process.env.USER_ID, {
-            text: message,
-        });
-        const userDoc = await Admin.updateOne({ user: 'All details' }, { oauth_acces_token: accessToken, oauth_refresh_token: newRefreshToken })
-            .then(obj => { console.log(obj) })
-            .catch(err => { console.log(err) });
-        console.log("error finished");
-
+        const { client: refreshedClient, accessToken, pRefreshToken: newRefreshToken } = client.refreshOAuth2Token(pRefreshToken).then(obj => {
+            const { dm_conversation_id, dm_event_id } = refreshedClient.v2.sendDmToParticipant(process.env.USER_ID, {
+                text: message,
+            });
+            console.log("No refresh error");
+        }).then(result => {
+            const userDoc = Admin.updateOne({ user: 'All details' }, { oauth_acces_token: accessToken, oauth_refresh_token: newRefreshToken })
+                .then(obj => { console.log(obj) })
+                .catch(err => { console.log(err) });
+            console.log("error finished");
+        })
+            .catch(err => {
+                console.log("refresh error");
+                console.log(err);
+            });
     }
 
 }
@@ -95,23 +99,20 @@ exports.post = (req, res, next) => {
             console.log(message_data);
             if (message_data == 'archive') {
                 //send recent 5 tweets from db
-                sendDM("Here are your recent 5 tweets",senderId);
+                sendDM("Here are your recent 5 tweets", senderId);
             }
             else if (message_data == 'reminders') {
                 //send recent 5 tweets with reminder flag on
-                sendDM("Here are your recent 5 reminders",senderId);
-            }
-            else if (containsLink(message_data)) {
-                //only store in db
+                sendDM("Here are your recent 5 reminders", senderId);
             }
             else if (chrono.parseDate(message_data)) {
                 console.log("Date found");
                 const dateTime = chrono.parseDate(message_data).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
-                sendDM("I have received your message. I will remind you at the specified time." + dateTime,senderId);
+                sendDM("I have received your message. I will remind you at the specified time." + dateTime, senderId);
 
             }
             else {
-                sendDM("Samajh nahi aaya bhai kya bol raha hai.!!! ",senderId);
+                sendDM("Samajh nahi aaya bhai kya bol raha hai.!!! ", senderId);
             }
         }
     }
