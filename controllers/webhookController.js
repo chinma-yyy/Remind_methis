@@ -9,14 +9,9 @@ async function sendDM(message, userId) {
     const userDoc = await Admin.findOne({ user: 'All details' });
     const pRefreshToken = userDoc.oauth_refresh_token;
     const pAccesstoken = userDoc.oauth_acces_token;
-    console.log(pRefreshToken);
-    console.log(pAccesstoken);
 
     try {
-        // console.log("try block");
         const v2client = new TwitterApi(pAccesstoken)
-        console.log("Direct user created");
-        // console.log(v2client);
         const sent1 = await v2client.v2.sendDmToParticipant(userId, {
             text: message,
         }).then(result => {
@@ -27,10 +22,7 @@ async function sendDM(message, userId) {
 
     }
     catch (err) {
-        console.log("error");
-        console.log(err);
         const v2client = new TwitterApi({ clientId: process.env.CLIENT_ID, clientSecret: process.env.CLIENT_SECRET });
-        console.log("Client created");
         let refreshToken;
         let accessToken;
         try {
@@ -38,13 +30,8 @@ async function sendDM(message, userId) {
                 .then(obj => {
                     let body = JSON.stringify(obj)
                     let json = JSON.parse(body);
-                    // console.log(body);
-                    // console.log(json);
                     refreshToken = json.refreshToken;
                     accessToken = json.accessToken;
-                    console.log("Refresh token: " + refreshToken);
-                    console.log("Access Token: " + accessToken);
-                    console.log("token refreshed");
                 });
 
             const refreshedClient = new TwitterApi(accessToken);
@@ -72,7 +59,7 @@ async function sendDM(message, userId) {
 exports.get = (req, res, next) => {
 
     var crc_token = req.query.crc_token;
-    console.log(crc_token);
+    // console.log(crc_token);
     if (crc_token) {
         var hash = crypto.createHmac('sha256', process.env.CONSUMER_SECRET).update(crc_token).digest('base64');
 
@@ -82,7 +69,7 @@ exports.get = (req, res, next) => {
         var json = {
             "response_token": response_token
         }
-        console.log(json);
+        // console.log(json);
 
         res.json({
             "response_token": response_token
@@ -94,46 +81,67 @@ exports.get = (req, res, next) => {
 
 }
 
-exports.post = (req, res, next) => {
+exports.post = async (req, res, next) => {
     var body = req.body; //store the body of the request
-    // console.log(process.env.USER_ID);
     if (body.direct_message_events) {
         // console.log(body);
-        let recipientId = body.direct_message_events[0].message_create.target.recipient_id;
         let senderId = body.direct_message_events[0].message_create.sender_id;
         let user = body.users;
         let stringify = JSON.stringify(user);
-        // console.log(stringify);
-        // console.log("useer: " + user);
+        let parsedUser = JSON.parse(stringify);
         console.log("Sender Id: " + senderId);
         if (senderId != "1606266324094955521") {
+
             let message_data = body.direct_message_events[0].message_create.message_data.text;//storing the message text using json sent by twitter
             let urls = body.direct_message_events[0].message_create.message_data.entities.urls;
             let hashtags = body.direct_message_events[0].message_create.message_data.entities.hashtags;
-            // console.log(hashtags);
-            console.log("----");
             console.log(urls);
             message_data = message_data.trimStart();
             message_data = message_data.toLowerCase();
             message_data = message_data.trimEnd();
-            let userId = body.direct_message_events[0].message_create.sender_id;;//Storing the userId of the user doing the event
-            console.log("Start");
+
+            const search = User.findOne({ userId: senderId }).then(userDoc => {
+                if (!userDoc) {
+                    const client = new TwitterApi(process.env.BEARER_TOKEN);
+                    const userinfo = client.v2.user(senderId,{'user.fields':['profile_image_url','username','name']}).then(user => {
+                        const string=JSON.stringify( user);
+                        const parse=JSON.parse(string);
+                        let pf_url = parse.data.profile_image_url;
+                        let name = parse.data.name;
+                        let username = parse.data.username;
+                        const newUser = new User({
+                            username: username,
+                            name: name,
+                            userId: senderId,
+                            pf_Url: pf_url
+                        })
+                        newUser.save().then(result => { console.log("user saved"); });
+                    }
+                    );
+                }
+            }).catch(err => { console.log(err); })
             console.log(message_data);
-            if (message_data == 'archive') {
-                //send recent 5 tweets from db
-                sendDM("Here are your recent 5 tweets", senderId);
-            }
-            else if (message_data == 'reminders') {
+            if (message_data == 'reminders') {
                 //send recent 5 tweets with reminder flag on
-                sendDM("Here are your recent 5 reminders", senderId);
+                // const tweets = Tweet.sort({ createdAt: -1 }).limit(5);
+                sendDM("Here are your recent 5 reminders" , senderId);
             }
             else if (chrono.parseDate(message_data)) {
-                console.log("Date found");
-                const dateTime = chrono.parseDate(message_data).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
-                sendDM("I have received your message. I will remind you at the specified time." + dateTime, senderId);
+                if (urls[0].expanded_url) {
+                    const dateTime = chrono.parseDate(message_data).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+                    sendDM("I have received your message. I will remind you at the specified time: " + dateTime, senderId);
+                    // res.redirect('/save?user=${userId}&tweet=${urls[0].extended_url}');
+                }
 
             }
+            // else if (urls[0].expanded_url) {
+            //     //store in db
+            //     console.log("urls");
+            //     res.redirect('/save?user=${userId}&tweet=${urls[0].extended_url}');
+
+            // }
             else {
+                console.log("send");
                 sendDM("Samajh nahi aaya bhai kya bol raha hai.!!! ", senderId);
             }
         }

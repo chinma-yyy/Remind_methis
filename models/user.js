@@ -3,7 +3,7 @@ const { tweets } = require('../controllers/appController');
 const Schema = mongoose.Schema;
 
 const userSchema=new Schema({
-    email:{
+    username:{
         type:String,
         required:true
     },
@@ -13,13 +13,8 @@ const userSchema=new Schema({
     },
     password:{
         type:String,
-        required:true
     },
-    twitterUsername:{
-        type:String,
-        required:true
-    },
-    twitterUserid:{
+    userId:{
         type:String,
         // required:true
     },
