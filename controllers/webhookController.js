@@ -12,46 +12,50 @@ async function sendDM(message, userId) {
     console.log(pRefreshToken);
     console.log(pAccesstoken);
 
+    // try {
+    //     console.log("try block");
+    //     const v2client = new TwitterApi(pAccesstoken)
+    //     console.log("Direct user created");
+    //     console.log(v2client);
+    //     const { dm_conversation_id, dm_event_id } = await v2client.v2.sendDmToParticipant(userId, {
+    //         text: message,
+    //     });
+    //     console.log("message sent");
+
+
+    // }
+    // catch (err) {
+    console.log("error");
+    // console.log(err);
+    const client = new TwitterApi({ clientId: process.env.CLIENT_ID, clientSecret: process.env.CLIENT_SECRET });
+    console.log(client);
+    // const client = new TwitterApi(pAccesstoken);
+    console.log("Client created");
+    console.log(pRefreshToken);
     try {
-        const v2client = new TwitterApi(pAccesstoken).then(obj => {
-            console.log("User created");
-            console.log(v2client);
-            const { dm_conversation_id, dm_event_id } = v2client.v2.sendDmToParticipant(userId, {
-                text: message,
-            }).then(obj => { console.log("Mesage sent") })
-        }).catch(err => { console.log(err) });
+        const { client: refreshedClient, accessToken, pRefreshToken: newRefreshToken } = await client.refreshOAuth2Token(pRefreshToken)
+            .then(obj => { console.log("obj: "+obj); });
+        console.log("token refreshed");
+        console.log(pRefreshToken);
+        console.log(accessToken);
+        const userDoc = Admin.updateOne({ user: 'All details' }, { oauth_acces_token: accessToken, oauth_refresh_token: newRefreshToken })
+            .then(obj => { console.log(obj) })
+            .catch(err => { console.log(err) });
+        // console.log("No refresh error");
+
+        const { dm_conversation_id, dm_event_id } = refreshedClient.v2.sendDmToParticipant(userId, {
+            text: "Refreshed token ",
+        }).then(obj => { console.log("Message sent") })
+            .catch(err => {
+                console.log(err);
+            });
 
     }
     catch (err) {
-        console.log("error");
+        console.log("Main client error");
         console.log(err);
-        const client = new TwitterApi({ clientId: process.env.CLIENT_ID, clientSecret: process.env.CLIENT_SECRET });
-        console.log(client);
-        // const client = new TwitterApi(pAccesstoken);
-        console.log("user created");
-        console.log(pRefreshToken);
-        try {
-            const { client: refreshedClient, accessToken, pRefreshToken: newRefreshToken } = client.refreshOAuth2Token(pRefreshToken).then(obj => {
-                const { dm_conversation_id, dm_event_id } = refreshedClient.v2.sendDmToParticipant(process.env.USER_ID, {
-                    text: message,
-                });
-                console.log("No refresh error");
-            }).then(result => {
-                const userDoc = Admin.updateOne({ user: 'All details' }, { oauth_acces_token: accessToken, oauth_refresh_token: newRefreshToken })
-                    .then(obj => { console.log(obj) })
-                    .catch(err => { console.log(err) });
-                console.log("error finished");
-            })
-                .catch(err => {
-                    console.log("refresh error");
-                    console.log(err);
-                });
-        }
-        catch (err) {
-            console.log("Main client error");
-            console.log(err);
-        }
     }
+    // }
 
 }
 
@@ -82,11 +86,13 @@ exports.get = (req, res, next) => {
 
 exports.post = (req, res, next) => {
     var body = req.body; //store the body of the request
-    console.log(body);
     // console.log(process.env.USER_ID);
     if (body.direct_message_events) {
+        console.log(body);
         let recipientId = body.direct_message_events[0].message_create.target.recipient_id;
         let senderId = body.direct_message_events[0].message_create.sender_id;
+        let user = body.users;
+        console.log("useer: " + user);
         console.log("Sender Id: " + senderId);
         console.log("Self created");
         if (senderId != "1606266324094955521") {

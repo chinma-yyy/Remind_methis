@@ -22,6 +22,9 @@ const userSchema=new Schema({
     twitterUserid:{
         type:String,
         // required:true
+    },
+    pf_Url:{
+        type:String
     }
 });
 

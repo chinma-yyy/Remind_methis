@@ -6,6 +6,10 @@ const tweetSchema=new Schema({
         type:Schema.Types.ObjectId,
         ref:'User'
     }],
+    shortUrl:{
+        type:String,
+        required:true
+    },
     tweetURL:{
         type:String,
         required:true
@@ -16,6 +20,9 @@ const tweetSchema=new Schema({
     },
     remindTime:{
         type:Date,
+    },
+    remindFlag:{
+        type:Boolean
     },
     tags:{
         type:Array,
