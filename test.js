@@ -1,4 +1,6 @@
-const Tweet=require('./models/tweet');
+let url=new URL('https://127.0.0.1/save');
+let params = new URLSearchParams(url.search);
 
-const tweets=Tweet.sort({createdAt:-1}).limit(5);
-console.log(tweets);
+params.append('userId','178372732');
+params.append('tweet','https://www.twitter.com/chinma_yyy')
+console.log(process.env.BASE_URL+params.toString());

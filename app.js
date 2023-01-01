@@ -10,6 +10,7 @@ const Admin=require('./models/admin');
 const appRoutes = require('./routes/appRoutes');
 const userRoutes = require('./routes/userRoutes');
 const webhookRoutes=require('./routes/webhookRoutes');
+const saveRoutes=require('./routes/saveRoutes');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -18,6 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/webhook',webhookRoutes)
 app.use('/app', appRoutes);
 app.use('/user', userRoutes);
+app.use('/save',saveRoutes);
 
 //Handle OAuth2 callback
 app.get('/callback', async (req, res) => {

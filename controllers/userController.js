@@ -10,9 +10,9 @@ const Admin = require('../models/admin');
 
 exports.login = async (req, res, next) => {
     console.log("Login controller");
-    const email = req.body.email;
+    const username = req.body.username;
     const password = req.body.password;
-    User.findOne({ email: email }).then(user => {
+    User.findOne({ username: username }).then(user => {
         if (!user) {
             const error = new Error('User not found');
             error.statusCode = 401;
@@ -42,21 +42,19 @@ exports.login = async (req, res, next) => {
 }
 exports.signup = async (req, res, next) => {
     console.log("Signup Controlller");
-    const email = req.body.email;
-    const name = req.body.name;
     const password = req.body.password;
     const twitterUsername = req.body.username;
-    //Add twitter user authentication and retrieve userId to store in db
-    const twitterId = 17645345;
+    User.findOne({username:username}).then(user=>{
+        if(!user){
+
+        }
+    })
     // Authlink generation
-    console.log("Authlink");
-    const { url, codeVerifier, state } = await client.generateOAuth2AuthLink(process.env.CALLBACK_URL, { scope: ['tweet.read', 'users.read', 'offline.access', 'dm.read', 'dm.write'] });
-    console.log(url);
-    console.log("---");
-    console.log(codeVerifier);
-    console.log("---");
-    console.log(state);
-    console.log("---");
+    // console.log("Authlink");
+    // const { url, codeVerifier, state } = await client.generateOAuth2AuthLink(process.env.CALLBACK_URL, { scope: ['tweet.read', 'users.read', 'offline.access', 'dm.read', 'dm.write'] });
+    // console.log(url);
+    // console.log("---");
+    // console.log(codeVerifier);
     
     bcrypt.hash(password, 12).then(hashedPw => {
         const user = new User({

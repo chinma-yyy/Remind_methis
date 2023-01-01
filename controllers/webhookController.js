@@ -103,9 +103,9 @@ exports.post = async (req, res, next) => {
             const search = User.findOne({ userId: senderId }).then(userDoc => {
                 if (!userDoc) {
                     const client = new TwitterApi(process.env.BEARER_TOKEN);
-                    const userinfo = client.v2.user(senderId,{'user.fields':['profile_image_url','username','name']}).then(user => {
-                        const string=JSON.stringify( user);
-                        const parse=JSON.parse(string);
+                    const userinfo = client.v2.user(senderId, { 'user.fields': ['profile_image_url', 'username', 'name'] }).then(user => {
+                        const string = JSON.stringify(user);
+                        const parse = JSON.parse(string);
                         let pf_url = parse.data.profile_image_url;
                         let name = parse.data.name;
                         let username = parse.data.username;
@@ -124,22 +124,37 @@ exports.post = async (req, res, next) => {
             if (message_data == 'reminders') {
                 //send recent 5 tweets with reminder flag on
                 // const tweets = Tweet.sort({ createdAt: -1 }).limit(5);
-                sendDM("Here are your recent 5 reminders" , senderId);
+                sendDM("Here are your recent 5 reminders", senderId);
             }
             else if (chrono.parseDate(message_data)) {
                 if (urls[0].expanded_url) {
+                    console.log("dated");
+                    let url = new URL('https://127.0.0.1/save');
+                    let params = new URLSearchParams(url.search);
+
+                    params.append('userId', senderId);
+                    params.append('tweet', urls[0].expanded_url)
+                    const redirect = process.env.BASE_URL + params.toString();
+                    console.log(redirect);
                     const dateTime = chrono.parseDate(message_data).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
                     sendDM("I have received your message. I will remind you at the specified time: " + dateTime, senderId);
-                    // res.redirect('/save?user=${userId}&tweet=${urls[0].extended_url}');
+                    sendDM(urls[0].expanded_url, senderId);
+                    res.redirect(redirect);
                 }
 
             }
-            // else if (urls[0].expanded_url) {
-            //     //store in db
-            //     console.log("urls");
-            //     res.redirect('/save?user=${userId}&tweet=${urls[0].extended_url}');
+            else if (urls != []) {
+                //store in db
+                let url = new URL('https://127.0.0.1/save');
+                let params = new URLSearchParams(url.search);
 
-            // }
+                params.append('userId', senderId);
+                params.append('tweet', urls[0].expanded_url)
+                const redirect = process.env.BASE_URL + params.toString();
+                sendDM(urls[0].expanded_url, senderId);
+                res.redirect(redirect);
+
+            }
             else {
                 console.log("send");
                 sendDM("Samajh nahi aaya bhai kya bol raha hai.!!! ", senderId);

@@ -20,6 +20,9 @@ const userSchema=new Schema({
     },
     pf_Url:{
         type:String
+    },
+    token:{
+        type:String
     }
 });
 

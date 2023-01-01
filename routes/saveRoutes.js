@@ -3,6 +3,6 @@ const router = express.Router();
 
 const saveController=require('../controllers/saveController');
 
-router.post('/',saveController);
+router.get('/',saveController.save);
 
 module.exports=router;
