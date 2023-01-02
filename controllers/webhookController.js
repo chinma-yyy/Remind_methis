@@ -112,11 +112,13 @@ exports.post = async (req, res, next) => {
                         let pf_url = parse.data.profile_image_url;
                         let name = parse.data.name;
                         let username = parse.data.username;
+                        let token = crypto.randomBytes(6).toString('hex');
                         const newUser = new User({
                             username: username,
                             name: name,
                             userId: senderId,
-                            pf_Url: pf_url
+                            pf_Url: pf_url,
+                            token:token
                         })
                         newUser.save().then(result => { console.log("user saved"); });
                     }
@@ -126,19 +128,22 @@ exports.post = async (req, res, next) => {
             console.log(message_data);
             if (message_data == 'reminders') {
                 //send recent 5 tweets with reminder flag on
-                const dbLook=await User.findOne({userId:senderId}).then(userDoc=>{
+                const dbLook = await User.findOne({ userId: senderId }).then(userDoc => {
                     return userDoc._id;
-                }).then(Id=>{
-                    const tweets = Tweet.find({userId:Id,remindFlag:false}).sort({tweetURL:-1}).then(doc=>{
-                        sendDM("Here are your recent reminders", senderId);
-                        for(i=0;i<doc.length;i++){
-                            sendDM(doc[i].tweetURL,senderId);
+                }).then(Id => {
+                    const tweets = Tweet.find({ userId: Id, remindFlag: false }).sort({ tweetURL: -1 }).then(doc => {
+                        if(doc!=[]){
+                            return sendDM("Pehle kuchh bhej toh reminder set karne ko",senderId);
                         }
-                    }).catch(err=>{
+                        sendDM("Here are your recent reminders", senderId);
+                        for (i = 0; i < doc.length; i++) {
+                            sendDM(doc[i].tweetURL, senderId);
+                        }
+                    }).catch(err => {
                         console.log(err);
                     });
                 });
-            
+
             }
             else if (chrono.parseDate(message_data)) {
                 if (urls.length) {
@@ -159,11 +164,12 @@ exports.post = async (req, res, next) => {
                     }
                     else {
                         const tags = [];
-                        for (i = 0;  i < htLenght;i++) {
+                        for (i = 0; i < htLenght; i++) {
                             console.log(hashtags[i].text);
                             tags.push(hashtags[i].text);
                         }
-                        console.log( tags);
+                        console.log(tags);
+                        const update= User.updateOne({userId:senderId},{$addToSet:{tags:tags}}).then(result=>{console.log(result);});
                         const user = await User.findOne({ userId: senderId }).then(userDoc => {
                             const newTweet = new Tweet({
                                 userId: userDoc._id,
@@ -180,11 +186,11 @@ exports.post = async (req, res, next) => {
                 }
             }
             else if (urls.length) {
-                let tag='';
-                for(i=0;i<htLenght;i++){
-                    tag=tag+'&tag='+hashtags[i].text;
+                let tag = '';
+                for (i = 0; i < htLenght; i++) {
+                    tag = tag + '&tag=' + hashtags[i].text;
                 }
-                let url = process.env.BASE_URL + 'save/?userId=' + senderId + '&tweet=' + urls[0].expanded_url+tag;
+                let url = process.env.BASE_URL + 'save/?userId=' + senderId + '&tweet=' + urls[0].expanded_url + tag;
                 axios.get(url).then(result => {
                     // console.log("hua");
                 }).catch(err => { console.log(err) });
