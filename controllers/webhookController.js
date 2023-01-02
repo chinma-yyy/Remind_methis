@@ -98,9 +98,7 @@ exports.post = async (req, res, next) => {
             let message_data = body.direct_message_events[0].message_create.message_data.text;//storing the message text using json sent by twitter
             let urls = body.direct_message_events[0].message_create.message_data.entities.urls;
             let hashtags = body.direct_message_events[0].message_create.message_data.entities.hashtags;
-            console.log(hashtags[0].text);
             let htLenght = hashtags.length;
-            let dbId;
             message_data = message_data.trimStart();
             message_data = message_data.toLowerCase();
             message_data = message_data.trimEnd();
@@ -128,8 +126,19 @@ exports.post = async (req, res, next) => {
             console.log(message_data);
             if (message_data == 'reminders') {
                 //send recent 5 tweets with reminder flag on
-                const tweets = Tweet.sort({ createdAt: -1 }).limit(5);
-                sendDM("Here are your recent 5 reminders", senderId);
+                const dbLook=await User.findOne({userId:senderId}).then(userDoc=>{
+                    return userDoc._id;
+                }).then(Id=>{
+                    const tweets = Tweet.find({userId:Id,remindFlag:false}).sort({tweetURL:-1}).then(doc=>{
+                        sendDM("Here are your recent reminders", senderId);
+                        for(i=0;i<doc.length;i++){
+                            sendDM(doc[i].tweetURL,senderId);
+                        }
+                    }).catch(err=>{
+                        console.log(err);
+                    });
+                });
+            
             }
             else if (chrono.parseDate(message_data)) {
                 if (urls.length) {
@@ -171,11 +180,10 @@ exports.post = async (req, res, next) => {
                 }
             }
             else if (urls.length) {
-                let tag;
+                let tag='';
                 for(i=0;i<htLenght;i++){
-                    tag='&tag='+hashtags[i].text;
+                    tag=tag+'&tag='+hashtags[i].text;
                 }
-                console.log(tag);
                 let url = process.env.BASE_URL + 'save/?userId=' + senderId + '&tweet=' + urls[0].expanded_url+tag;
                 axios.get(url).then(result => {
                     // console.log("hua");

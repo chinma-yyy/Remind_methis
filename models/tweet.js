@@ -1,27 +1,26 @@
-const mongooose=require('mongoose');
-const Schema=mongooose.Schema;
+const mongooose = require('mongoose');
+const Schema = mongooose.Schema;
 
-const tweetSchema=new Schema({
-    userId:[{
-        type:Schema.Types.ObjectId,
-        ref:'User'
+const tweetSchema = new Schema({
+    userId: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
     }],
-    tweetURL:{
-        type:String,
-        required:true
+    tweetURL: {
+        type: String,
+        required: true
     },
-    remindTime:{
-        type:Date,
+    remindTime: {
+        type: Date,
     },
-    remindFlag:{
-        type:Boolean,
-        required:true
+    remindFlag: {
+        type: Boolean,
+        required: true
     },
-    tags:{
-        type:[String],
+    tags: {
+        type: [String],
     }
-},
-{timestamps:true}
+}
 );
 
-module.exports=mongooose.model('Tweet',tweetSchema);
+module.exports = mongooose.model('Tweet', tweetSchema);

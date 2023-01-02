@@ -16,13 +16,16 @@ const userSchema=new Schema({
     },
     userId:{
         type:String,
-        // required:true
+        required:true
     },
     pf_Url:{
         type:String
     },
     token:{
         type:String
+    },
+    tags:{
+        type:[String]
     }
 });
 
