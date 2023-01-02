@@ -5,6 +5,8 @@ const Admin = require('../models/admin');
 const Tweet = require('../models/tweet');
 const User = require('../models/user');
 const { captureRejectionSymbol } = require('events');
+const axios = require('axios');
+const { url } = require('inspector');
 
 async function sendDM(message, userId) {
     const userDoc = await Admin.findOne({ user: 'All details' });
@@ -96,6 +98,7 @@ exports.post = async (req, res, next) => {
             let message_data = body.direct_message_events[0].message_create.message_data.text;//storing the message text using json sent by twitter
             let urls = body.direct_message_events[0].message_create.message_data.entities.urls;
             let hashtags = body.direct_message_events[0].message_create.message_data.entities.hashtags;
+            console.log(urls.length);
             message_data = message_data.trimStart();
             message_data = message_data.toLowerCase();
             message_data = message_data.trimEnd();
@@ -129,38 +132,30 @@ exports.post = async (req, res, next) => {
             else if (chrono.parseDate(message_data)) {
                 if (urls[0].expanded_url) {
                     console.log("dated");
-                    let url = new URL('https://127.0.0.1/save');
-                    let params = new URLSearchParams(url.search);
-
-                    params.append('userId', senderId);
-                    params.append('tweet', urls[0].expanded_url)
-                    const redirect = '/' + params.toString();
-                    console.log(redirect);
+                    const user = await User.findOne({ userId: senderId }).then(userDoc => {
+                        const newTweet = new Tweet({
+                            userId: userDoc._id,
+                            tweetURL: urls[0].expanded_url,
+                            remindFlag: false,
+                            remindTime: new Date(),
+                            tags: 'new'
+                        });
+                        newTweet.save();
+                    }).catch(err => { console.log(err); });
                     const dateTime = chrono.parseDate(message_data).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
                     sendDM("I have received your message. I will remind you at the specified time: " + dateTime, senderId);
-                    sendDM(urls[0].expanded_url, senderId);
-                    res.redirect(redirect);
+
                 }
-
             }
-            // else if (urls != []) {
-            //     //store in db
-            //     let url = new URL('https://127.0.0.1/save');
-            //     let params = new URLSearchParams(url.search);
-
-            //     params.append('userId', senderId);
-            //     params.append('tweet', urls[0].expanded_url);
-            //     const redirect = '/save?'+ params.toString();
-            //     console.log(redirect);
-            //     sendDM(urls[0].expanded_url, senderId);
-            //     res.redirect(redirect);
-            //     console.log("redirected");
-            //     next();
-
-            // }
+            else if (urls.length) {
+                let url = process.env.BASE_URL + 'save/?userId=' + senderId + '&tweet=' + urls[0].expanded_url;
+                axios.get(url).then(result => {
+                    // console.log("hua");
+                }).catch(err => { console.log(err) });
+                sendDM("Tweet saved :)", senderId);
+            }
             else {
                 await sendDM("Samajh nahi aaya bhai kya bol raha hai.!!! ", senderId);
-                res.redirect('/signup');
             }
         }
     }

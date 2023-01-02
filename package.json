@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@twitter-api-v2/plugin-token-refresher": "^1.0.0",
+    "axios": "^1.2.2",
     "bcryptjs": "^2.4.3",
     "chrono-node": "^2.5.0",
     "crypto-js": "^4.1.1",

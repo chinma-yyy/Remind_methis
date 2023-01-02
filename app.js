@@ -6,7 +6,7 @@ const app = express();
 const { TwitterApi } = require('twitter-api-v2');
 const User = require('./models/user');
 const Admin = require('./models/admin');
-const Tweet=require('./models/tweet');
+const Tweet = require('./models/tweet');
 
 const appRoutes = require('./routes/appRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -23,14 +23,20 @@ app.use('/user', userRoutes);
 app.get('/save', async (req, res, next) => {
   const userId = req.query.userId;
   const tweetURL = req.query.tweet;
-  const tag=req.query.tag;
+  let tag;
+  if (req.query.tag) {
+    tag = req.query.tag;
+  }
+  else {
+    tag = 'none';
+  }
   const user = await User.findOne({ userId: userId }).then(userDoc => {
-    const newTweet=new Tweet({
-      userId:userDoc._id,
-      tweetURL:tweetURL,
-      remindFlag:false,
-      remindTime:new Date(),
-      tags:tag,
+    const newTweet = new Tweet({
+      userId: userDoc._id,
+      tweetURL: tweetURL,
+      remindFlag: false,
+      remindTime: new Date(),
+      tags: tag,
     });
     newTweet.save();
   }).catch(err => { console.log(err); });
