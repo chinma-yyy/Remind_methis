@@ -5,32 +5,48 @@ const mongoose = require('mongoose');
 const app = express();
 const { TwitterApi } = require('twitter-api-v2');
 const User = require('./models/user');
-const Admin=require('./models/admin');
+const Admin = require('./models/admin');
+const Tweet=require('./models/tweet');
 
 const appRoutes = require('./routes/appRoutes');
 const userRoutes = require('./routes/userRoutes');
-const webhookRoutes=require('./routes/webhookRoutes');
-const saveRoutes=require('./routes/saveRoutes');
+const webhookRoutes = require('./routes/webhookRoutes');
+const saveRoutes = require('./routes/saveRoutes');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 //Handle CRC request response from twitter
-app.use('/webhook',webhookRoutes)
+app.use('/webhook', webhookRoutes)
 app.use('/app', appRoutes);
 app.use('/user', userRoutes);
-app.use('/save',saveRoutes);
+app.get('/save', async (req, res, next) => {
+  const userId = req.query.userId;
+  const tweetURL = req.query.tweet;
+  const tag=req.query.tag;
+  const user = await User.findOne({ userId: userId }).then(userDoc => {
+    const newTweet=new Tweet({
+      userId:userDoc._id,
+      tweetURL:tweetURL,
+      remindFlag:false,
+      remindTime:new Date(),
+      tags:tag,
+    });
+    newTweet.save();
+  }).catch(err => { console.log(err); });
+  res.json({ message: "tweet saved" });
+});
 
 //Handle OAuth2 callback
 app.get('/callback', async (req, res) => {
   // Extract state and code from query string
   const state = req.query.state;
   const code = req.query.code;
-  console.log("state-"+state);
-  console.log("code-"+code);
-  let codeVerifier='JAt9PkjYMDrPF5CS3eWRNSV7Jsorf4VPQ27WHD5.pQ9f8s9Fcb2-aY_jd7hJYBo-63GoTE~DcWCn5FNrDb_tsbX2sfRWrVG9j2s6dWaFKiaqVnMH~wztV-Ep7hQ8D1sD';
-  console.log("verifier-"+codeVerifier);
-  
+  console.log("state-" + state);
+  console.log("code-" + code);
+  let codeVerifier = 'JAt9PkjYMDrPF5CS3eWRNSV7Jsorf4VPQ27WHD5.pQ9f8s9Fcb2-aY_jd7hJYBo-63GoTE~DcWCn5FNrDb_tsbX2sfRWrVG9j2s6dWaFKiaqVnMH~wztV-Ep7hQ8D1sD';
+  console.log("verifier-" + codeVerifier);
+
   const client = new TwitterApi({ clientId: process.env.CLIENT_ID, clientSecret: process.env.CLIENT_SECRET });
 
   client.loginWithOAuth2({ code, codeVerifier, redirectUri: process.env.CALLBACK_URL })
@@ -38,10 +54,10 @@ app.get('/callback', async (req, res) => {
       const { dm_conversation_id, dm_event_id } = await loggedClient.v2.sendDmToParticipant(process.env.USER_ID, {
         text: 'Testing!',
       })
-      const newRefreshToken=refreshToken;
-      const newAccessToken=accessToken;
+      const newRefreshToken = refreshToken;
+      const newAccessToken = accessToken;
       const newAdmin = new Admin({
-        user:'All details',
+        user: 'All details',
         oauth_acces_token: newAccessToken,
         oauth_refresh_token: newRefreshToken,
         oauth_codeVerfier: codeVerifier,
@@ -52,7 +68,7 @@ app.get('/callback', async (req, res) => {
       newAdmin.save();
       console.log(newRefreshToken);
       console.log(newAccessToken);
-      
+
     })
     .catch(() => res.status(403).send('Invalid verifier or access tokens!'));
 });

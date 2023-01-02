@@ -1,21 +1,20 @@
 const User = require('../models/user');
 const Tweet = require('../models/tweet');
 
-exports.save = (req, res, next) => {
+exports.save = async (req, res, next) => {
     const userId = req.query.userId;
     const tweetURL = req.query.tweet;
     const tag=req.query.tag;
-    console.log("saving");
-    const user = User.findOne({ userId: userId }).then(userDoc => {
-        UID = userDoc._id;
-        return UID;
-    }).catch(err => { console.log(err); })
-
-    const tweet=new Tweet({
-        userId:user,
+    const user = await User.findOne({ userId: userId }).then(userDoc => {
+      const newTweet=new Tweet({
+        userId:userDoc._id,
         tweetURL:tweetURL,
         remindFlag:false,
-        tags:tag
-    })
-    tweet.save();
-}
+        remindTime:new Date(),
+        tags:tag,
+      });
+      newTweet.save();
+    }).catch(err => { console.log(err); });
+    res.json({ message: "tweet saved" });
+  };
+

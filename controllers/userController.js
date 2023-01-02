@@ -44,10 +44,12 @@ exports.signup = async (req, res, next) => {
     console.log("Signup Controlller");
     const password = req.body.password;
     const twitterUsername = req.body.username;
+    console.log(password + twitterUsername);
     User.findOne({username:username}).then(user=>{
         if(!user){
 
         }
+        console.log("userfound");
     })
     // Authlink generation
     // console.log("Authlink");
@@ -57,14 +59,15 @@ exports.signup = async (req, res, next) => {
     // console.log(codeVerifier);
     
     bcrypt.hash(password, 12).then(hashedPw => {
-        const user = new User({
-            email: email,
-            name: name,
-            password: hashedPw,
-            twitterUsername: twitterUsername,
-            twitterUserid: twitterId
-        })
-        return user.save();
+        // const user = new User({
+        //     email: email,
+        //     name: name,
+        //     password: hashedPw,
+        //     twitterUsername: twitterUsername,
+        //     twitterUserid: twitterId
+        // })
+        // return user.save();
+        console.log("saving");
     }).then(result => {
         res.status(201).json({ message: 'User created successfully', userId: result._id })
     }).catch(err => {
