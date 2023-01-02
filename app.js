@@ -12,6 +12,7 @@ const appRoutes = require('./routes/appRoutes');
 const userRoutes = require('./routes/userRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
 const saveRoutes = require('./routes/saveRoutes');
+const { time } = require('console');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -30,17 +31,34 @@ app.get('/save', async (req, res, next) => {
   else {
     tag = 'none';
   }
-  const user = await User.findOne({ userId: userId }).then(userDoc => {
-    const newTweet = new Tweet({
-      userId: userDoc._id,
-      tweetURL: tweetURL,
-      remindFlag: false,
-      remindTime: new Date(),
-      tags: tag,
-    });
-    newTweet.save();
-  }).catch(err => { console.log(err); });
-  res.json({ message: "tweet saved" });
+  if (!req.query.dateTime) {
+    const user = await User.findOne({ userId: userId }).then(userDoc => {
+      const newTweet = new Tweet({
+        userId: userDoc._id,
+        tweetURL: tweetURL,
+        remindFlag: false,
+        tags: tag,
+      });
+      newTweet.save();
+    }).catch(err => { console.log(err); });
+    res.json({ message: "tweet saved" });
+  }
+  else {
+    let time=req.query.dateTime;
+    console.log("time: "+time);
+    console.log(typeof time);
+    const user = await User.findOne({ userId: userId }).then(userDoc => {
+      const newTweet = new Tweet({
+        userId: userDoc._id,
+        tweetURL: tweetURL,
+        remindFlag: false,
+        remindTime:new Date(),
+        tags: tag,
+      });
+      newTweet.save();
+    }).catch(err => { console.log(err); });
+    res.json({ message: "tweet saved" });
+  }
 });
 
 //Handle OAuth2 callback

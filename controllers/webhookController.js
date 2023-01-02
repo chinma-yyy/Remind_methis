@@ -98,7 +98,9 @@ exports.post = async (req, res, next) => {
             let message_data = body.direct_message_events[0].message_create.message_data.text;//storing the message text using json sent by twitter
             let urls = body.direct_message_events[0].message_create.message_data.entities.urls;
             let hashtags = body.direct_message_events[0].message_create.message_data.entities.hashtags;
-            console.log(urls.length);
+            console.log(hashtags[0].text);
+            let htLenght = hashtags.length;
+            let dbId;
             message_data = message_data.trimStart();
             message_data = message_data.toLowerCase();
             message_data = message_data.trimEnd();
@@ -126,29 +128,55 @@ exports.post = async (req, res, next) => {
             console.log(message_data);
             if (message_data == 'reminders') {
                 //send recent 5 tweets with reminder flag on
-                // const tweets = Tweet.sort({ createdAt: -1 }).limit(5);
+                const tweets = Tweet.sort({ createdAt: -1 }).limit(5);
                 sendDM("Here are your recent 5 reminders", senderId);
             }
             else if (chrono.parseDate(message_data)) {
-                if (urls[0].expanded_url) {
-                    console.log("dated");
-                    const user = await User.findOne({ userId: senderId }).then(userDoc => {
-                        const newTweet = new Tweet({
-                            userId: userDoc._id,
-                            tweetURL: urls[0].expanded_url,
-                            remindFlag: false,
-                            remindTime: new Date(),
-                            tags: 'new'
-                        });
-                        newTweet.save();
-                    }).catch(err => { console.log(err); });
+                if (urls.length) {
                     const dateTime = chrono.parseDate(message_data).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
-                    sendDM("I have received your message. I will remind you at the specified time: " + dateTime, senderId);
+                    const dt = chrono.parseDate(message_data);
+                    if (!htLenght) {
+                        const user = await User.findOne({ userId: senderId }).then(userDoc => {
+                            const newTweet = new Tweet({
+                                userId: userDoc._id,
+                                tweetURL: urls[0].expanded_url,
+                                remindFlag: true,
+                                remindTime: dt,
+                                tags: 'none'
+                            });
+                            newTweet.save();
+                        }).catch(err => { console.log(err); });
+                        sendDM("I will remind you at the specified time: " + dateTime, senderId);
+                    }
+                    else {
+                        const tags = [];
+                        for (i = 0;  i < htLenght;i++) {
+                            console.log(hashtags[i].text);
+                            tags.push(hashtags[i].text);
+                        }
+                        console.log( tags);
+                        const user = await User.findOne({ userId: senderId }).then(userDoc => {
+                            const newTweet = new Tweet({
+                                userId: userDoc._id,
+                                tweetURL: urls[0].expanded_url,
+                                remindFlag: true,
+                                remindTime: dt,
+                                tags: tags
+                            });
+                            newTweet.save();
+                        }).catch(err => { console.log(err); });
+                        sendDM("I will remind you at the specified time: " + dateTime, senderId);
+                    }
 
                 }
             }
             else if (urls.length) {
-                let url = process.env.BASE_URL + 'save/?userId=' + senderId + '&tweet=' + urls[0].expanded_url;
+                let tag;
+                for(i=0;i<htLenght;i++){
+                    tag='&tag='+hashtags[i].text;
+                }
+                console.log(tag);
+                let url = process.env.BASE_URL + 'save/?userId=' + senderId + '&tweet=' + urls[0].expanded_url+tag;
                 axios.get(url).then(result => {
                     // console.log("hua");
                 }).catch(err => { console.log(err) });
