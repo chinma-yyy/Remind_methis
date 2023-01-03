@@ -33,8 +33,6 @@ Remind_methis is a Twitter Bot to remind the user to read the tweets at a specif
 
 The project is not yet complete. I have to create a proper frontend for the application and add some features also.
 
-- Reminding the user at the specified time - If you have any idea how i can get a request at a specified please contact me.
-
 
 ## Environment Variables
 
@@ -98,7 +96,7 @@ You can use [ngrok](https://ngrok.com/) to tunnel your local host and recieve th
 
 **Client:** Twitter 
 
-**Server:** Node, Express , MongoDB , Chrono , Twitter-API-V2 , Crypto
+**Server:** Node, Express , MongoDB , Chrono , Twitter-API-V2 , Crypto , Cron
 
 
 ## Authors
@@ -116,4 +114,5 @@ You can reach out to me through Twitter [chinma_yyy](https://www.twitter.com/chi
  - [chrono](https://github.com/wanasit/chrono)
  - [twitter-api-v2](https://github.com/plhery/node-twitter-api-v2)
  - [ngrok](https://ngrok.com/)
+ - [cron](https://github.com/kelektiv/node-cron)
 
