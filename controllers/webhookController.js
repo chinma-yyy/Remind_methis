@@ -93,7 +93,7 @@ exports.post = async (req, res, next) => {
     var body = req.body; //store the body of the request
     if (body.direct_message_events) {
         let senderId = body.direct_message_events[0].message_create.sender_id;
-        if (senderId != "1606266324094955521") {//Khudka event ko case mei na lena
+        if (senderId != process.env.USER_ID) {//Khudka event ko case mei na lena
 
             let message_data = body.direct_message_events[0].message_create.message_data.text;//storing the message text using json sent by twitter
             let urls = body.direct_message_events[0].message_create.message_data.entities.urls;//Url array with short url expanded url display url 

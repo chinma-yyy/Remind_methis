@@ -1,0 +1,16 @@
+{
+    "env":{
+        "CONSUMER_KEY":"",
+        "CONSUMER_SECRET":"",
+        "BEARER_TOKEN":"",
+        "ACCESS_TOKEN":"",
+        "ACCESS_TOKEN_SECRET":"",
+        "CLIENT_ID":"",
+        "CLIENT_SECRET":"",
+        "MONGODB_URL":"",
+        "USER_ID":"",
+        "CALLBACK_URL":"http://127.0.0.1:3000/callback",
+        "BASE_URL":"http://127.0.0.1:3000/"
+
+    }
+}
