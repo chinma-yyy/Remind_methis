@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
 const { TwitterApi } = require('twitter-api-v2');
+const compression=require('compression');
 //All models
 const User = require('./models/user');
 const Admin = require('./models/admin');
@@ -91,6 +92,7 @@ job.start();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(compression());
 
 //Handle CRC request response from twitter
 app.use('/webhook', webhookRoutes)
