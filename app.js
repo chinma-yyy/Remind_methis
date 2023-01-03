@@ -73,11 +73,14 @@ const job = new CronJob('0 */1 * * * *', function () {
       const comp = Date.parse(tweets[i].remindTime);
       if (d > comp) {
         sendDM(tweets[i].tweetURL, tweets[i].userId);
-        Tweet.updateOne({tweetURL:tweets[i].tweetURL},{remindFlag:false}).then(result=>{
+        sendDM("Make sure to read this cause i have marked it as read!",tweets[i].userId);
+        Tweet.updateOne({userId:tweets[i].userId},{remindFlag:false}).then(result=>{
+          console.log(result);
         })
       }
     }
   });
+  console.log(".");
 }
 
 )

@@ -28,7 +28,14 @@ Remind_methis is a Twitter Bot to remind the user to read the tweets at a specif
 - Easy to use just a DM away for using.
 ## Examples of use
 
-- Coming soon!! XD
+![connect](./imgs/connect.jpg)
+
+![saved](./imgs/saved.jpg)
+
+![tagged](./imgs/tagged.jpg)
+
+![reminder](./imgs/reminder.jpg)
+
 ## Project Status
 
 The project is not yet complete. I have to create a proper frontend for the application and add some features also.
