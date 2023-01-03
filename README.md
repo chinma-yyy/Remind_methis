@@ -33,6 +33,8 @@ Remind_methis is a Twitter Bot to remind the user to read the tweets at a specif
 
 The project is not yet complete. I have to create a proper frontend for the application and add some features also.
 
+- Reminding the user at the specified time - If you have any idea how i can get a request at a specified please contact me.
+
 
 ## Environment Variables
 
