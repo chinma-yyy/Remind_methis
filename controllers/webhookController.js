@@ -103,7 +103,7 @@ exports.post = async (req, res, next) => {
             message_data = message_data.toLowerCase();
             message_data = message_data.trimEnd();
 
-            const search = User.findOne({ userId: senderId }).then(userDoc => {
+            const search = await User.findOne({ userId: senderId }).then(userDoc => {
                 if (!userDoc) {
                     const client = new TwitterApi(process.env.BEARER_TOKEN);
                     const userinfo = client.v2.user(senderId, { 'user.fields': ['profile_image_url', 'username', 'name'] }).then(user => {
@@ -195,6 +195,9 @@ exports.post = async (req, res, next) => {
                     // console.log("hua");
                 }).catch(err => { console.log(err) });
                 sendDM("Tweet saved :)", senderId);
+            }
+            else if(message_data=='connect'){
+                sendDM("Connected",senderId);
             }
             else {
                 await sendDM("Samajh nahi aaya bhai kya bol raha hai.!!! ", senderId);

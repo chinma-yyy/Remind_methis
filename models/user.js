@@ -25,7 +25,7 @@ const userSchema=new Schema({
         type:String
     },
     tags:{
-        type:Array
+        type:[String]
     }
 });
 

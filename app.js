@@ -27,6 +27,9 @@ app.get('/save', async (req, res, next) => {
   let tag;
   if (req.query.tag) {
     tag = req.query.tag;
+    const update= await User.updateOne({userId:userId},{$addToSet:{tags:tag}}).then(result=>{
+      console.log("updated succesfully");
+    })
   }
   else {
     tag = 'none';
