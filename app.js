@@ -1,18 +1,17 @@
+//All packages
 const express = require('express');
-const crypto = require('crypto');
-const request = require('request');
 const mongoose = require('mongoose');
 const app = express();
 const { TwitterApi } = require('twitter-api-v2');
+//All models
 const User = require('./models/user');
 const Admin = require('./models/admin');
 const Tweet = require('./models/tweet');
-
+//All routes
 const appRoutes = require('./routes/appRoutes');
 const userRoutes = require('./routes/userRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
 const saveRoutes = require('./routes/saveRoutes');
-const { time } = require('console');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -27,41 +26,24 @@ app.get('/save', async (req, res, next) => {
   let tag;
   if (req.query.tag) {
     tag = req.query.tag;
-    const update= await User.updateOne({userId:userId},{$addToSet:{tags:tag}}).then(result=>{
-      console.log("updated succesfully");
+    const update = await User.updateOne({ userId: userId }, { $addToSet: { tags: tag } }).then(result => {
+      console.log("updated succesfully");//Add tags to user data
     })
   }
   else {
     tag = 'none';
   }
-  if (!req.query.dateTime) {
-    const user = await User.findOne({ userId: userId }).then(userDoc => {
-      const newTweet = new Tweet({
-        userId: userDoc._id,
-        tweetURL: tweetURL,
-        remindFlag: false,
-        tags: tag,
-      });
-      newTweet.save();
-    }).catch(err => { console.log(err); });
-    res.json({ message: "tweet saved" });
-  }
-  else {
-    let time=req.query.dateTime;
-    console.log("time: "+time);
-    console.log(typeof time);
-    const user = await User.findOne({ userId: userId }).then(userDoc => {
-      const newTweet = new Tweet({
-        userId: userDoc._id,
-        tweetURL: tweetURL,
-        remindFlag: false,
-        remindTime:new Date(),
-        tags: tag,
-      });
-      newTweet.save();
-    }).catch(err => { console.log(err); });
-    res.json({ message: "tweet saved" });
-  }
+  const user = await User.findOne({ userId: userId }).then(userDoc => {
+    const newTweet = new Tweet({
+      userId: userDoc._id,
+      tweetURL: tweetURL,
+      remindFlag: false,
+      tags: tag,
+    });
+    newTweet.save();
+  }).catch(err => { console.log(err); });
+  res.json({ message: "tweet saved" });
+
 });
 
 //Handle OAuth2 callback
@@ -71,6 +53,7 @@ app.get('/callback', async (req, res) => {
   const code = req.query.code;
   console.log("state-" + state);
   console.log("code-" + code);
+  //Take code verifier from first step an put it here 
   let codeVerifier = 'JAt9PkjYMDrPF5CS3eWRNSV7Jsorf4VPQ27WHD5.pQ9f8s9Fcb2-aY_jd7hJYBo-63GoTE~DcWCn5FNrDb_tsbX2sfRWrVG9j2s6dWaFKiaqVnMH~wztV-Ep7hQ8D1sD';
   console.log("verifier-" + codeVerifier);
 
@@ -100,7 +83,7 @@ app.get('/callback', async (req, res) => {
     .catch(() => res.status(403).send('Invalid verifier or access tokens!'));
 });
 
-
+//Error handler
 app.use((error, req, res, next) => {
   console.log(error);
   const status = error.statusCode || 500;

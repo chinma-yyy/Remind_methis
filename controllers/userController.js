@@ -40,6 +40,10 @@ exports.login = async (req, res, next) => {
         next(err);
     })
 }
+
+//There is  authlink generation in signup  controller to generate authkeys if needed later add another controller seperately
+
+//Change this to match the token in user and set password 
 exports.signup = async (req, res, next) => {
     console.log("Signup Controlller");
     const password = req.body.password;

@@ -3,12 +3,6 @@ const router = express.Router();
 
 const appController=require('../controllers/appController');
 
-// router.post('/reminders',appController.reminder);
-
-
-
-// router.post('/count',appController.count);
-
-// router.post('/tweet',appController.tweets);
+// router.get('/tweets',appController.tweets);
 
 module.exports=router;

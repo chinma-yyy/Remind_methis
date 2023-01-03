@@ -3,22 +3,22 @@ const Schema = mongooose.Schema;
 
 const tweetSchema = new Schema({
     userId: [{
-        type: Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,//link  to the user model created by
         ref: 'User'
     }],
     tweetURL: {
-        type: String,
+        type: String,//Long url of the tweet
         required: true
     },
     remindTime: {
-        type: Date,
+        type: Date,//date to remind the user in default time zone
     },
     remindFlag: {
-        type: Boolean,
+        type: Boolean,// If the tweet saved is to  be reminded or not
         required: true
     },
     tags: {
-        type: [String],
+        type: [String],//tags given to the tweet 
     }
 }
 );

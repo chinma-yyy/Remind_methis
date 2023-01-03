@@ -1,6 +1,6 @@
 const User = require('../models/user');
 const Tweet = require('../models/tweet');
-
+//Have to see how to  use it
 exports.save = async (req, res, next) => {
     console.log("Save controller");
     const userId = req.query.userId;

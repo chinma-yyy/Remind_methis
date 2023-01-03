@@ -1,31 +1,30 @@
 const mongoose = require('mongoose');
-const { tweets } = require('../controllers/appController');
 const Schema = mongoose.Schema;
 
 const userSchema=new Schema({
     username:{
-        type:String,
+        type:String,//twitter username of the user
         required:true
     },
     name:{
-        type:String,
+        type:String,//twitter name of the user
         required:true
     },
     password:{
         type:String,
     },
     userId:{
-        type:String,
+        type:String,//twitter user id of the user
         required:true
     },
     pf_Url:{
-        type:String
+        type:String//profile image url
     },
     token:{
-        type:String
+        type:String//token to reset or set password
     },
     tags:{
-        type:[String]
+        type:[String]//tags given to the tweets by user 
     }
 });
 

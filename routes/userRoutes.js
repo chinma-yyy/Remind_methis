@@ -8,6 +8,6 @@ const middleware=require('../middlewares/user')
 
 router.post('/login',userController.login);
 
-router.put('/signup', userController.signup);//Add middleware to validate all input
+router.put('/signup', userController.signup);//Add middleware to validate password
 
 module.exports = router;
