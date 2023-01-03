@@ -4,7 +4,32 @@
 Remind_methis is a Twitter Bot to remind the user to read the tweets at a specified time by the user and also to save and view tweets with various tags to keep the resources organised.
 
 
-## Deployment
+## Table of content
+
+- [Features](https://github.com/chinmayshewale/Remind_methis#features)
+
+- [Examples of use](https://github.com/chinmayshewale/Remind_methis#examples-of-use)
+
+- [Project Status](https://github.com/chinmayshewale/Remind_methis#project-status)
+
+- [Environment Variables](https://github.com/chinmayshewale/Remind_methis#environment-variables)
+
+- [Run Locally](https://github.com/chinmayshewale/Remind_methis#run-locally)
+
+- [Tech Stack](https://github.com/chinmayshewale/Remind_methis#tech-stack)
+
+- [Authors Contact](https://github.com/chinmayshewale/Remind_methis#authors)
+
+- [Acknowledgements](https://github.com/chinmayshewale/Remind_methis#acknowledgements)
+## Features
+
+- Set reminders of tweets to read in future.
+- Save important tweets with specific tags.
+- Easy to use just a DM away for using.
+## Examples of use
+
+- Coming soon!! XD
+## Project Status
 
 The project is not yet complete. I have to create a proper frontend for the application and add some features also.
 
