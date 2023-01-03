@@ -12,6 +12,79 @@ const appRoutes = require('./routes/appRoutes');
 const userRoutes = require('./routes/userRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
 const saveRoutes = require('./routes/saveRoutes');
+const CronJob = require('cron').CronJob;
+
+async function sendDM(message, userId) {
+  const userDoc = await Admin.findOne({ user: 'All details' });
+  //retrieve tokens from db
+  const pRefreshToken = userDoc.oauth_refresh_token;
+  const pAccesstoken = userDoc.oauth_acces_token;
+
+  try {
+    const v2client = new TwitterApi(pAccesstoken);//create client with access token as bearer token
+    const sent1 = await v2client.v2.sendDmToParticipant(userId, {
+      text: message,
+    }).then(result => {
+      console.log("message sent");
+    }
+    );
+    //If token expires renew in catch block and send DIrect message
+  }
+  catch (err) {
+    const v2client = new TwitterApi({ clientId: process.env.CLIENT_ID, clientSecret: process.env.CLIENT_SECRET });//Client using developer keys
+    let refreshToken;
+    let accessToken;
+    try {
+      const refresh = await v2client.refreshOAuth2Token(pRefreshToken)//Refresh the token
+        .then(obj => {
+          let body = JSON.stringify(obj);//JSON obj ko string karke firse json to acces it
+          let json = JSON.parse(body);
+          refreshToken = json.refreshToken;
+          accessToken = json.accessToken;
+        });
+
+      const refreshedClient = new TwitterApi(accessToken);//New client on new tokens
+      const userDoc = Admin.updateOne({ user: 'All details' }, { oauth_acces_token: accessToken, oauth_refresh_token: refreshToken })//Update the Tokens in db
+        .then(obj => {
+          console.log("updated succesfully");
+        })
+        .catch(err => { console.log(err) });
+      const sent2 = refreshedClient.v2.sendDmToParticipant(userId, {
+        text: message,
+      }).then(obj => { console.log("Message sent") })//Send dm from new refreshed client
+        .catch(err => {
+          console.log(err);
+        });
+
+    }
+    catch (err) {
+      console.log("Main client error");//Kuchh toh jhol hai bahut bada
+      console.log(err);
+    }
+  }
+
+}
+
+const job = new CronJob('0 */1 * * * *', function () {
+  const d = new Date();
+  const now = Date.parse(d);
+  const remind = Tweet.find({ remindFlag: true }).then(tweets => {
+    for (i = 0; i < tweets.length; i++) {
+      const comp = Date.parse(tweets[i].remindTime);
+      if (d > comp) {
+        sendDM(tweets[i].tweetURL, tweets[i].userId);
+        Tweet.updateOne({tweetURL:tweets[i].tweetURL},{remindFlag:false}).then(result=>{
+        })
+      }
+    }
+  });
+}
+
+)
+job.start();
+
+
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -33,15 +106,13 @@ app.get('/save', async (req, res, next) => {
   else {
     tag = 'none';
   }
-  const user = await User.findOne({ userId: userId }).then(userDoc => {
-    const newTweet = new Tweet({
-      userId: userDoc._id,
-      tweetURL: tweetURL,
-      remindFlag: false,
-      tags: tag,
-    });
-    newTweet.save();
-  }).catch(err => { console.log(err); });
+  const newTweet = new Tweet({
+    userId: userId,
+    tweetURL: tweetURL,
+    remindFlag: false,
+    tags: tag,
+  });
+  newTweet.save();
   res.json({ message: "tweet saved" });
 
 });

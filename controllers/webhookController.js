@@ -158,16 +158,14 @@ exports.post = async (req, res, next) => {
 
                     //Check if there are tags for the tweet
                     if (!htLenght) {
-                        const user = await User.findOne({ userId: senderId }).then(userDoc => {
-                            const newTweet = new Tweet({
-                                userId: userDoc._id,
-                                tweetURL: urls[0].expanded_url,
-                                remindFlag: true,
-                                remindTime: dt,
-                                tags: 'none'
-                            });
-                            newTweet.save();
-                        }).catch(err => { console.log(err); });
+                        const newTweet = new Tweet({
+                            userId: senderId,
+                            tweetURL: urls[0].expanded_url,
+                            remindFlag: true,
+                            remindTime: dt,
+                            tags: 'none'
+                        });
+                        newTweet.save();
                         sendDM("I will remind you at the specified time: " + dateTime, senderId);
                     }
                     else {
@@ -178,16 +176,15 @@ exports.post = async (req, res, next) => {
                         }
                         console.log(tags);
                         const update = User.updateOne({ userId: senderId }, { $addToSet: { tags: tags } }).then(result => { console.log(result); });//Add tags to the user without duplicating
-                        const user = await User.findOne({ userId: senderId }).then(userDoc => {
-                            const newTweet = new Tweet({
-                                userId: userDoc._id,
-                                tweetURL: urls[0].expanded_url,
-                                remindFlag: true,
-                                remindTime: dt,
-                                tags: tags
-                            });
-                            newTweet.save();
-                        }).catch(err => { console.log(err); });
+                        const newTweet = new Tweet({
+                            userId: senderId,
+                            tweetURL: urls[0].expanded_url,
+                            remindFlag: true,
+                            remindTime: dt,
+                            tags: tags
+                        });
+                        newTweet.save();
+
                         sendDM("I will remind you at the specified time: " + dateTime, senderId);
                     }
 
@@ -205,7 +202,14 @@ exports.post = async (req, res, next) => {
                 sendDM("Tweet saved :)", senderId);
             }
             else if (message_data == 'connect') {
-                sendDM("Connected", senderId);
+                const connected = User.findOne({ userId: senderId }).then(userDoc => {
+                    if (userDoc) {
+                        sendDM("Already connected!! How ? IDK!!XD", senderId);
+                    }
+                    else {
+                        sendDM("Connected", senderId);
+                    }
+                })
                 //Aur kuchh acche se daalde for first message
             }
             else {

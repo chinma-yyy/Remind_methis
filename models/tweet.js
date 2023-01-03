@@ -2,10 +2,9 @@ const mongooose = require('mongoose');
 const Schema = mongooose.Schema;
 
 const tweetSchema = new Schema({
-    userId: [{
-        type: Schema.Types.ObjectId,//link  to the user model created by
-        ref: 'User'
-    }],
+    userId: {
+        type:String,//Twitter userid of the user
+    },
     tweetURL: {
         type: String,//Long url of the tweet
         required: true
