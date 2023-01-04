@@ -8,57 +8,10 @@ const Admin = require('../models/admin');
 const Tweet = require('../models/tweet');
 const User = require('../models/user');
 
-//Function to the send Direct Message to user
-async function sendDM(message, userId) {
-    const userDoc = await Admin.findOne({ user: 'All details' });
-    //retrieve tokens from db
-    const pRefreshToken = userDoc.oauth_refresh_token;
-    const pAccesstoken = userDoc.oauth_acces_token;
+const DM = require('./sendDMcontroller');
+const save = require('../controllers/saveController');
+const { toNamespacedPath } = require('path');
 
-    try {
-        const v2client = new TwitterApi(pAccesstoken);//create client with access token as bearer token
-        const sent1 = await v2client.v2.sendDmToParticipant(userId, {
-            text: message,
-        }).then(result => {
-            console.log("message sent");
-        }
-        );
-        //If token expires renew in catch block and send DIrect message
-    }
-    catch (err) {
-        const v2client = new TwitterApi({ clientId: process.env.CLIENT_ID, clientSecret: process.env.CLIENT_SECRET });//Client using developer keys
-        let refreshToken;
-        let accessToken;
-        try {
-            const refresh = await v2client.refreshOAuth2Token(pRefreshToken)//Refresh the token
-                .then(obj => {
-                    let body = JSON.stringify(obj);//JSON obj ko string karke firse json to acces it
-                    let json = JSON.parse(body);
-                    refreshToken = json.refreshToken;
-                    accessToken = json.accessToken;
-                });
-
-            const refreshedClient = new TwitterApi(accessToken);//New client on new tokens
-            const userDoc = Admin.updateOne({ user: 'All details' }, { oauth_acces_token: accessToken, oauth_refresh_token: refreshToken })//Update the Tokens in db
-                .then(obj => {
-                    console.log("updated succesfully");
-                })
-                .catch(err => { console.log(err) });
-            const sent2 = refreshedClient.v2.sendDmToParticipant(userId, {
-                text: message,
-            }).then(obj => { console.log("Message sent") })//Send dm from new refreshed client
-                .catch(err => {
-                    console.log(err);
-                });
-
-        }
-        catch (err) {
-            console.log("Main client error");//Kuchh toh jhol hai bahut bada
-            console.log(err);
-        }
-    }
-
-}
 
 //Twitter will give crc token hash map it with your consumer secret and then send it in json response to verify
 //twitter verifies this every 24 hours to set the webhook as active
@@ -136,12 +89,12 @@ exports.post = async (req, res, next) => {
                     return userDoc._id;
                 }).then(Id => {
                     const tweets = Tweet.find({ userId: Id, remindFlag: true }).sort({ remindTime: -1 }).then(doc => {
-                        if (doc != []) {
-                            return sendDM("Pehle kuchh bhej toh reminder set karne ko", senderId);//If no reminders set
+                        if (doc == []) {
+                            return DM.sendDM("Pehle kuchh bhej toh reminder set karne ko", senderId);//If no reminders set
                         }
                         sendDM("Here are your recent reminders", senderId);
                         for (i = 0; i < doc.length; i++) {
-                            sendDM(doc[i].tweetURL, senderId);
+                            DM.sendDM(doc[i].tweetURL, senderId);
                         }
                     }).catch(err => {
                         console.log(err);
@@ -157,63 +110,41 @@ exports.post = async (req, res, next) => {
                     const dt = chrono.parseDate(message_data);//Date time object in default tomezone
 
                     //Check if there are tags for the tweet
-                    if (!htLenght) {
-                        const newTweet = new Tweet({
-                            userId: senderId,
-                            tweetURL: urls[0].expanded_url,
-                            remindFlag: true,
-                            remindTime: dt,
-                            tags: 'none'
-                        });
-                        newTweet.save();
-                        sendDM("I will remind you at the specified time: " + dateTime, senderId);
+                    DM.sendDM("I will remind you at the specified time: " + dateTime, senderId);
+                    const tags = [];
+                    for (i = 0; i < htLenght; i++) {
+                        console.log(hashtags[i].text);
+                        tags.push(hashtags[i].text);
                     }
-                    else {
-                        const tags = [];
-                        for (i = 0; i < htLenght; i++) {
-                            console.log(hashtags[i].text);
-                            tags.push(hashtags[i].text);
-                        }
-                        console.log(tags);
+                    console.log(tags);
+                    if (tags.length) {
                         const update = User.updateOne({ userId: senderId }, { $addToSet: { tags: tags } }).then(result => { console.log(result); });//Add tags to the user without duplicating
-                        const newTweet = new Tweet({
-                            userId: senderId,
-                            tweetURL: urls[0].expanded_url,
-                            remindFlag: true,
-                            remindTime: dt,
-                            tags: tags
-                        });
-                        newTweet.save();
-
-                        sendDM("I will remind you at the specified time: " + dateTime, senderId);
                     }
-
+                    save.saveTweet(senderId,urls[0].expanded_url,dt,true,tags);
                 }
             }
             else if (urls.length) {
-                let tag = '';
+                const tags = [];
                 for (i = 0; i < htLenght; i++) {
-                    tag = tag + '&tag=' + hashtags[i].text;
+                    console.log(hashtags[i].text);
+                    tags.push(hashtags[i].text);
                 }
-                let url = process.env.BASE_URL + 'save/?userId=' + senderId + '&tweet=' + urls[0].expanded_url + tag;//Constructing url with query paramters
-                axios.get(url).then(result => {
-                    // console.log("hua");
-                }).catch(err => { console.log(err) });
-                sendDM("Tweet saved :)", senderId);
+                save.saveTweet(senderId, urls[0].expanded_url, false, false, tags);
+                DM.sendDM("Tweet saved :)", senderId);
             }
             else if (message_data == 'connect') {
                 const connected = User.findOne({ userId: senderId }).then(userDoc => {
                     if (userDoc) {
-                        sendDM("Already connected!! How ? IDK!!XD", senderId);
+                        DM.sendDM("Already connected!! How ? IDK!!XD", senderId);
                     }
                     else {
-                        sendDM("Connected", senderId);
+                        DM.sendDM("Connected", senderId);
                     }
                 })
                 //Aur kuchh acche se daalde for first message
             }
             else {
-                sendDM("Samajh nahi aaya bhai kya bol raha hai.!!! ", senderId);
+                DM.sendDM("Samajh nahi aaya bhai kya bol raha hai.!!! ", senderId);
                 //Invalid text recieved
             }
         }
