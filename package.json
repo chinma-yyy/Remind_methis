@@ -17,12 +17,14 @@
     "compression": "^1.7.4",
     "cron": "^2.1.0",
     "crypto-js": "^4.1.1",
+    "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-validator": "^6.14.2",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^6.8.1",
     "nodemon": "^2.0.20",
     "request": "^2.88.2",
+    "serverless": "^3.26.0",
     "twitter-api-v2": "^1.13.0"
   }
 }

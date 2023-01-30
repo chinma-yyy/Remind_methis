@@ -3,7 +3,7 @@ const router = express.Router();
 const { body } = require('express-validator/check');
 const User=require('../models/user');
 const userController = require('../controllers/userController');
-const middleware=require('../middlewares/user')
+// const middleware=require('../middlewares/user')
 
 
 router.post('/login',userController.login);

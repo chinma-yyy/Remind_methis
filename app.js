@@ -60,7 +60,7 @@ app.get('/callback', async (req, res) => {
   console.log("state-" + state);
   console.log("code-" + code);
   //Take code verifier from first step an put it here 
-  let codeVerifier = 'JAt9PkjYMDrPF5CS3eWRNSV7Jsorf4VPQ27WHD5.pQ9f8s9Fcb2-aY_jd7hJYBo-63GoTE~DcWCn5FNrDb_tsbX2sfRWrVG9j2s6dWaFKiaqVnMH~wztV-Ep7hQ8D1sD';
+  let codeVerifier = '6iKADiTsfA.R8g.49aYbBJzZG4T86L4YgQ5VqMqyBT_DTMChnR-LtPxp4c.D9rdJ~sv8NewkEWZL3GT97oHA.SDd6PXUFdXqYZ8EjeGxCXkX~zas9pR3JothdmDGVcBf';
   console.log("verifier-" + codeVerifier);
 
   const client = new TwitterApi({ clientId: process.env.CLIENT_ID, clientSecret: process.env.CLIENT_SECRET });

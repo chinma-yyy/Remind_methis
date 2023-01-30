@@ -30,14 +30,13 @@ exports.sendDM = async (message, userId)=> {
             refreshToken = json.refreshToken;
             accessToken = json.accessToken;
           });
-  
         const refreshedClient = new TwitterApi(accessToken);//New client on new tokens
-        const userDoc = Admin.updateOne({ user: 'All details' }, { oauth_acces_token: accessToken, oauth_refresh_token: refreshToken })//Update the Tokens in db
+        const userDoc = await Admin.updateOne({ user: 'All details' }, { oauth_acces_token: accessToken, oauth_refresh_token: refreshToken })//Update the Tokens in db
           .then(obj => {
             console.log("updated succesfully");
           })
           .catch(err => { console.log(err) });
-        const sent2 = refreshedClient.v2.sendDmToParticipant(userId, {
+        const sent2 = await refreshedClient.v2.sendDmToParticipant(userId, {
           text: message,
         }).then(obj => { console.log("Message sent") })//Send dm from new refreshed client
           .catch(err => {
